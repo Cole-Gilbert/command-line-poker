@@ -6,18 +6,34 @@
 type card
 (**The abstract type of values representing a playing card.*)
 
-type player
+type player = {
+  name : string;
+  balance : int;
+  betting : int;
+  active : bool;
+  hand : card list;
+}
 (**The abstract type of values representing a poker player.*)
 
-val shuffled_deck : card list -> card list
-(**[shuffled_deck] is a set-like list of a randomized deck of 52 cards.*)
+val fresh_deck : card list
+(**[fresh_deck] is a list (without duplicates) of all 52 playing cards in order.
+   IE: Spades (A -> K), Hearts (A -> K), Diamonds (A -> K), Clubs (A -> K).*)
+
+val shuffled_deck : card list
+(**[shuffled_deck] is a list (without duplicates) of a randomized deck of 52
+   cards.*)
+
+val compare : card -> card -> int
+(**[compare c1 c2] is positive if card [c1] is greater than card [c2], 0 if card
+   [c1] and card [c2] are equal, and negative if card [c1] is less than card
+   [c2]*)
 
 val top_card : card list -> card
 (**[top_card d] is the top card from a deck [d]*)
 
 val draw_from_deck : card list -> card list
-(**[draw_from_deck d] is the resulting set-like list of cards after removing the
-   top card from deck [d]. Requires: [d] is not empty. *)
+(**[draw_from_deck d] is the resulting list (without duplicates) of cards after
+   removing the top card from deck [d]. Requires: [d] is not empty. *)
 
 val card_to_string : card -> string
 (**[card_to_string c] is the string representation of a card [c]. *)
