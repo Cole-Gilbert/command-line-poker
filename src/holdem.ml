@@ -4,8 +4,8 @@
 type suit =
   | Spades
   | Hearts
-  | Clubs
   | Diamonds
+  | Clubs
 
 type card = {
   suit : suit;
@@ -17,12 +17,9 @@ type player = {
   balance : int;
   betting : int;
   active : bool;
-  card1 : card;
-  card2 : card;
+  hand : card list;
 }
 
-(**[fresh_deck] is a set-like list of all 52 playing cards in order. IE: Spades
-   (A -> K), Hearts (A -> K), Diamonds (A -> K), Clubs (A -> K).*)
 let fresh_deck =
   [
     (*Spades A -> K*)
@@ -83,12 +80,40 @@ let fresh_deck =
     { suit = Clubs; rank = 13 };
   ]
 
-(**[shuffle deck] is a set-like list that randomizes the locations of the cards
-   in the original deck [d]. Requires: [deck] has size 52.*)
+(**[shuffle deck] is a list (without duplicates) that randomizes the locations
+   of the cards in the original deck [d]. Requires: [deck] has size 52.*)
 let shuffle deck = raise (Failure "Unimplemented.")
 
-let shuffled_deck = raise (Failure "Unimplemented.")
-let top_card deck = raise (Failure "Unimplemented.")
-let draw_from_deck deck = raise (Failure "Unimplemented.")
-let card_to_string card = raise (Failure "Unimplemented.")
-let deck_to_string deck = raise (Failure "Unimplemented.")
+let shuffled_deck = shuffle fresh_deck
+let compare card1 card2 = card1.rank - card2.rank
+let top_card deck = List.hd deck
+
+let draw_from_deck deck =
+  match deck with
+  | [] ->
+      raise
+        (Failure
+           "Violates preconditions (cannot draw a card from an empty deck)")
+  | [ h ] -> []
+  | h :: t -> t
+
+(**[rank_to_string i] onverts the numerical rank [i] of a card to its
+   corresponding string. IE: 1 -> "A", 2 -> "2", etc. Requires: i <= 13 and i >=
+   1*)
+let rank_to_string rank =
+  match rank with
+  | 13 -> "K"
+  | 12 -> "Q"
+  | 11 -> "J"
+  | 1 -> "A"
+  | _ -> Int.to_string rank
+
+let card_to_string card =
+  match card.suit with
+  | Spades -> rank_to_string card.rank ^ "S"
+  | Hearts -> rank_to_string card.rank ^ "H"
+  | Diamonds -> rank_to_string card.rank ^ "D"
+  | Clubs -> rank_to_string card.rank ^ "C"
+
+let deck_to_string deck =
+  List.fold_left (fun acc card -> acc ^ card_to_string card ^ " ") " " deck
