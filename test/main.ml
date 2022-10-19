@@ -7,14 +7,26 @@ open Command
     OUnit test cases for Holdem
  ******************************************************************)
 
-(**[top_card name deck expected_output] constructs an OUnit test named [name]
-   that asserts the quality of [expected_output] with [top_card deck].*)
-let top_card (name : string) deck expected_output : test =
+(**[top_card_test name deck expected_output] constructs an OUnit test named
+   [name] that asserts the quality of [expected_output] with [top_card deck].*)
+let top_card_test (name : string) deck expected_output : test =
   name >:: fun _ ->
   assert_equal expected_output (top_card deck |> card_to_string)
 
+(**[shuffle_deck_test shuffled_deck fresh_deck expected_result] constructs an
+   OUnit test named [name] that asserts the quality of [expected_result] with
+   [deck_to_string shuffled_deck <> deck_to_string fresh_deck].*)
+let shuffle_deck_test (name : string) shuffled_deck fresh_deck expected_result :
+    test =
+  name >:: fun _ ->
+  assert_equal expected_result
+    (deck_to_string shuffled_deck <> deck_to_string fresh_deck)
+
 let holdem_tests =
-  [ top_card "Top card of a fresh deck is the Ace of Spades" fresh_deck "AS" ]
+  [
+    top_card_test "Top card of a fresh deck is the Ace of Spades" fresh_deck
+      "AS";
+  ]
 
 (******************************************************************
     OUnit test cases for Command

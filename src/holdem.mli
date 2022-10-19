@@ -15,12 +15,19 @@ type player = {
 }
 (**The abstract type of values representing a poker player.*)
 
+val make_player : string -> int -> card list -> player
+(**[make_player name balance hand] initializes a player with name: [name];
+   balance: [balance]; betting: 0; active: True; and hand:[hand].*)
+
 val fresh_deck : card list
 (**[fresh_deck] is a list (without duplicates) of all 52 playing cards in order.
    IE: Spades (A -> K), Hearts (A -> K), Diamonds (A -> K), Clubs (A -> K).*)
 
-val shuffled_deck : card list
-(**[shuffled_deck] is a list (without duplicates) of a randomized deck of 52
+val shuffle_deck : unit -> unit
+(**[shuffle_deck ()] generates a new randomization of current_deck.*)
+
+val current_deck : card list
+(**[current_deck] is a list (without duplicates) of a randomized deck of 52
    cards.*)
 
 val compare : card -> card -> int

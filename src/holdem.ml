@@ -20,6 +20,9 @@ type player = {
   hand : card list;
 }
 
+let make_player name balance hand =
+  { name; balance; betting = 0; active = true; hand }
+
 let fresh_deck =
   [
     (*Spades A -> K*)
@@ -80,11 +83,27 @@ let fresh_deck =
     { suit = Clubs; rank = 13 };
   ]
 
-(**[shuffle deck] is a list (without duplicates) that randomizes the locations
-   of the cards in the original deck [d]. Requires: [deck] has size 52.*)
-let shuffle deck = raise (Failure "Unimplemented.")
+(**[active_deck_arr] is the card array representing the current deck.*)
+let active_deck_arr = Array.of_list fresh_deck
 
-let shuffled_deck = shuffle fresh_deck
+(**[swap i j arr] modifies the array [arr] by swapping the element with index
+   [i] in the array [arr] with the element with index [j] in that same array
+   [arr].*)
+let swap i j arr =
+  let temp = arr.(i) in
+  arr.(i) <- arr.(j);
+  arr.(j) <- temp
+
+(**[shuffle deck] modifies the card array [deck] by randomizing the locations of
+   the cards in the original card aray [deck]. Requires: [deck] has size 52.*)
+let shuffle deck =
+  for index = 51 downto 1 do
+    let random_index = Random.int (index + 1) in
+    swap index random_index deck
+  done
+
+let shuffle_deck () = shuffle active_deck_arr
+let current_deck = Array.to_list active_deck_arr
 let compare card1 card2 = card1.rank - card2.rank
 let top_card deck = List.hd deck
 
