@@ -147,7 +147,7 @@ let card_to_string card =
   | Clubs -> rank_to_string card.rank ^ "C"
 
 let cards_to_string deck =
-  List.fold_left (fun acc card -> acc ^ card_to_string card ^ " ") " " deck
+  List.fold_left (fun acc card -> acc ^ " " ^ card_to_string card) "" deck
 
 let player_to_string player =
   player.name ^ ":"
