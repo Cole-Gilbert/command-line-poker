@@ -7,6 +7,11 @@
 type t
 (** The abstract type of values representing the game state. *)
 
+(** The type representing the result of an attempted turn. *)
+type result =
+  | Legal of t
+  | Illegal
+
 val init : int -> t
 (** [init i] is the initial state of the game when playing holdem with i
     representing the buy in amount. In that state the holdem game has no players

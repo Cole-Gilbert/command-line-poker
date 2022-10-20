@@ -8,21 +8,26 @@ type t = {
   board : card list;
 }
 
+type result =
+  | Legal of t
+  | Illegal
+
 let init buy_in =
-  { deck = shuffled_deck; players = []; pot = 0; buy_in; board = [] }
+  Legal { deck = shuffled_deck; players = []; pot = 0; buy_in; board = [] }
 
 let turn command player amount st =
   raise (Failure "deal, call, raise, check, and fold")
 
 let edit name st =
   let p = Holdem.make_player name st.buy_in in
-  {
-    deck = st.deck;
-    players = p :: st.players;
-    pot = st.pot;
-    buy_in = st.buy_in;
-    board = st.board;
-  }
+  Legal
+    {
+      deck = st.deck;
+      players = p :: st.players;
+      pot = st.pot;
+      buy_in = st.buy_in;
+      board = st.board;
+    }
 
 let find_highest_amount (players : player list) =
   List.fold_left max 0 (List.map (fun p -> p.balance) players)
