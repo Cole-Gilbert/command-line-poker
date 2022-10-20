@@ -1,6 +1,7 @@
 open OUnit2
 open Game
 open Holdem
+open State
 open Command
 
 (******************************************************************
@@ -29,6 +30,30 @@ let holdem_tests =
   ]
 
 (******************************************************************
+    OUnit test cases for State
+ ******************************************************************)
+
+(**[quit_test name st expected_output] constructs an OUnit test named [name]
+   that asserts the quality of [expected_output] with [state_to_string st].*)
+let quit_test (name : string) (st : State.t) (expected_output : string) : test =
+  name >:: fun _ -> assert_equal expected_output (quit st)
+
+(**[state_to_string_test name st expected_output] constructs an OUnit test named
+   [name] that asserts the quality of [expected_output] with
+   [state_to_string st].*)
+let state_to_string_test (name : string) (st : State.t)
+    (expected_output : string) : test =
+  (*let () = print_string ("\n" ^ state_to_string st ^ "\n") in*)
+  name >:: fun _ -> assert_equal expected_output (state_to_string st)
+
+let state_tests =
+  let state = init 50 in
+  [
+    state_to_string_test "State to string using init state" state
+      "TABLE:\nNo current players\nPot: 0 Chips\nBoard: __ __ __ __ __";
+    quit_test "Quits using init state" state " won with an amount of 0";
+  ]
+(******************************************************************
     OUnit test cases for Command
  ******************************************************************)
 
@@ -42,6 +67,6 @@ let command_tests = []
 
 let suite =
   "test suite for 3110_final_project"
-  >::: List.flatten [ holdem_tests; command_tests ]
+  >::: List.flatten [ holdem_tests; state_tests; command_tests ]
 
 let _ = run_test_tt_main suite

@@ -24,33 +24,33 @@ let edit name st =
     board = st.board;
   }
 
-let find_winner (players : player list) =
+let find_highest_amount (players : player list) =
   List.fold_left max 0 (List.map (fun p -> p.balance) players)
 
-let players_to_string (players : player list) =
+let player_names_to_string (players : player list) =
   String.concat ", " (List.map (fun p -> p.name) players)
 
 let quit st =
-  let amt = find_winner st.players in
-  players_to_string (List.filter (fun p -> p.balance = amt) st.players)
+  let amt = find_highest_amount st.players in
+  player_names_to_string (List.filter (fun p -> p.balance = amt) st.players)
   ^ " won with an amount of " ^ string_of_int amt
 
-let rec print_players players =
+let rec players_to_string players =
   match players with
-  | [ h ] -> print_endline (player_to_string h)
-  | h :: t ->
-      print_endline (player_to_string h);
-      print_players t
-  | [] -> print_endline "No current players"
+  | [ h ] -> player_to_string h ^ "\n"
+  | h :: t -> player_to_string h ^ "\n" ^ players_to_string t
+  | [] -> "No current players\n"
 
-let print st =
-  print_endline "TABLE:";
-  print_players st.players;
-  print_string "Pot: ";
-  print_int st.pot;
-  print_endline "Chips";
-  print_string "Board: ";
-  print_string (cards_to_string st.board);
-  for x = List.length st.board to 4 do
-    print_string "__"
-  done
+let rec repeat_string n str =
+  if n = 0 then "" else str ^ repeat_string (n - 1) str
+
+let unknown_cards_to_string (board : card list) =
+  let n = 5 - List.length board in
+  repeat_string n " __"
+
+let state_to_string st =
+  "TABLE:\n"
+  ^ players_to_string st.players
+  ^ "Pot: " ^ string_of_int st.pot ^ " Chips\n" ^ "Board:"
+  ^ cards_to_string st.board
+  ^ unknown_cards_to_string st.board

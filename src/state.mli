@@ -16,11 +16,12 @@ val turn : 'a -> 'b -> 'c -> 'd -> 'e
 (** unimplemented *)
 
 val edit : string -> t -> t
-(** [edit s a] will add a player with name s to a representing the game state.*)
+(** [edit s a] adds a player with name s to a representing the game state.*)
 
 val quit : t -> string
-(** [quit a] will return a string representing the winner(s) of the game state,
+(** [quit a] returns a string representing the winner(s) of the game state,
     given by a, by the number of chips of each player*)
 
-val print : t -> unit
-(** [print q] prints the state of the game represented by q*)
+val state_to_string : t -> string
+(** [state_to_string a] returns the string representation of a, which is the
+    state of the game *)
