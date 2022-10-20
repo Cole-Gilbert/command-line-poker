@@ -1,12 +1,17 @@
-(* Parses the user input input *)
-
-(* Data type for a command *)
-type command =
+type turn =
   | Deal
-  | AddPlayer of (String * Int) (* The name and their initial coins *)
-  | Leave
+  | Call
+  | Raise of int
+  | Check
+  | Fold
 
-(* Parse function String -> command *)
-(* E.g. "Deal" makes Deal
-   "AddPlayer Sean 100" makes AddPlayer holding tuple ("Sean", 100)
-   "Leave" makes leave *)
+type edit =
+  | AddPlayer of string
+  | RemovePlayer of string
+
+type command =
+  | Turn of turn
+  | Edit of edit
+  | Quit
+
+let parse str = Quit

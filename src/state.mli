@@ -20,7 +20,7 @@ val init : int -> t
 val turn : 'a -> 'b -> 'c -> 'd -> 'e
 (** unimplemented *)
 
-val edit : string -> t -> t
+val edit : string -> t -> result
 (** [edit s a] adds a player with name s to a representing the game state.*)
 
 val quit : t -> string

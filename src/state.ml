@@ -13,7 +13,7 @@ type result =
   | Illegal
 
 let init buy_in =
-  Legal { deck = shuffled_deck; players = []; pot = 0; buy_in; board = [] }
+  { deck = shuffled_deck; players = []; pot = 0; buy_in; board = [] }
 
 let turn command player amount st =
   raise (Failure "deal, call, raise, check, and fold")
