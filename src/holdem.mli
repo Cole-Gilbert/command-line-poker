@@ -15,6 +15,14 @@ type player = {
 }
 (**The abstract type of values representing a poker player.*)
 
+val make_player : string -> int -> player
+(**[make_player name balance hand] initializes a player with name: [name];
+   balance: [balance]; betting: 0; active: True; and hand:[].*)
+
+val deal_to : player -> card -> player
+(**[deal_to p c] adds a card [c] to a player's [p] hand. Requires: player's [p]
+   hand must have size < 2. *)
+
 val fresh_deck : card list
 (**[fresh_deck] is a list (without duplicates) of all 52 playing cards in order.
    IE: Spades (A -> K), Hearts (A -> K), Diamonds (A -> K), Clubs (A -> K).*)
@@ -38,5 +46,8 @@ val draw_from_deck : card list -> card list
 val card_to_string : card -> string
 (**[card_to_string c] is the string representation of a card [c]. *)
 
-val deck_to_string : card list -> string
-(**[deck_to_string d] is the string representation of a deck [d]. *)
+val cards_to_string : card list -> string
+(**[cards_to_string lst] is the string representation of a card list [lst]. *)
+
+val player_to_string : player -> string
+(**[player_to_string p] is the string representation of a player [p].*)
