@@ -20,9 +20,19 @@ type player = {
   hand : card list;
 }
 
-let make_player name balance hand =
-  { name; balance; betting = 0; active = true; hand }
+let make_player name balance =
+  { name; balance; betting = 0; active = true; hand = [] }
 
+let deal_to player card =
+  {
+    name = player.name;
+    balance = player.balance;
+    betting = player.betting;
+    active = player.active;
+    hand = card :: player.hand;
+  }
+
+(*For testing purposes*)
 let fresh_deck =
   [
     (*Spades A -> K*)
@@ -102,8 +112,10 @@ let shuffle deck =
     swap index random_index deck
   done
 
-let shuffle_deck () = shuffle active_deck_arr
-let current_deck = Array.to_list active_deck_arr
+let shuffled_deck =
+  shuffle active_deck_arr;
+  Array.to_list active_deck_arr
+
 let compare card1 card2 = card1.rank - card2.rank
 let top_card deck = List.hd deck
 
@@ -134,5 +146,11 @@ let card_to_string card =
   | Diamonds -> rank_to_string card.rank ^ "D"
   | Clubs -> rank_to_string card.rank ^ "C"
 
-let deck_to_string deck =
+let cards_to_string deck =
   List.fold_left (fun acc card -> acc ^ card_to_string card ^ " ") " " deck
+
+let player_to_string player =
+  player.name ^ ":"
+  ^ cards_to_string player.hand
+  ^ string_of_int player.balance
+  ^ " Chips"
