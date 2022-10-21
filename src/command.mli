@@ -6,9 +6,9 @@
 type action =
   | Deal
   | Call
-  | Raise of int
   | Check
   | Fold
+  | Raise of int
   | AddPlayer of string
   | RemovePlayer of string  (** The type representing a turn made by a player *)
 
