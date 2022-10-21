@@ -3,20 +3,17 @@
     This module represents the possible commands a player can enter. It handles
     parsing a string into the data types specified *)
 
-type turn =
+type action =
   | Deal
   | Call
   | Raise of int
   | Check
-  | Fold  (** The type representing a turn made by a player *)
-
-type edit =
+  | Fold
   | AddPlayer of string
   | RemovePlayer of string  (** The type representing a turn made by a player *)
 
 type command =
-  | Turn of turn
-  | Edit of edit
+  | Action of action
   | Quit  (** The type representing a whole player command *)
 
 exception Empty

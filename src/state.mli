@@ -17,12 +17,9 @@ val init : int -> t
     representing the buy in amount. In that state the holdem game has no players
     but can be added before the start of each round*)
 
-val turn : 'a -> 'b -> 'c -> 'd -> 'e
-(** unimplemented *)
-
-val edit : Command.edit -> t -> result
-(** [edit c a] adds or removes a player based on edit command c which contains a
-    name to edit a, which represents the game state.*)
+val action : Command.action -> t -> result
+(** [action c a] applies the action based on command c which contains necessary
+    information to edit a, which represents the game state.*)
 
 val quit : t -> string
 (** [quit a] returns a string representing the winner(s) of the game state,

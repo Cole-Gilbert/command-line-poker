@@ -15,35 +15,31 @@ type result =
 let init buy_in =
   { deck = shuffled_deck (); players = []; pot = 0; buy_in; board = [] }
 
-let turn command player amount st =
-  raise (Failure "deal, call, raise, check, and fold")
+let add name st =
+  if List.exists (fun p -> p.name = name) st.players then
+    Illegal "Error: Name already being used!\n"
+  else
+    let p = Holdem.make_player name st.buy_in in
+    Legal
+      {
+        deck = st.deck;
+        players = p :: st.players;
+        pot = st.pot;
+        buy_in = st.buy_in;
+        board = st.board;
+      }
 
-let edit cmd st =
-  match cmd with
-  | Command.AddPlayer name ->
-      if List.exists (fun p -> p.name = name) st.players then
-        Illegal "Name already being used\n"
-      else
-        let p = Holdem.make_player name st.buy_in in
-        Legal
-          {
-            deck = st.deck;
-            players = p :: st.players;
-            pot = st.pot;
-            buy_in = st.buy_in;
-            board = st.board;
-          }
-  | Command.RemovePlayer name ->
-      if List.exists (fun p -> p.name = name) st.players then
-        Legal
-          {
-            deck = st.deck;
-            players = List.filter (fun p -> p.name <> name) st.players;
-            pot = st.pot;
-            buy_in = st.buy_in;
-            board = st.board;
-          }
-      else Illegal "Name does not exist in list of players\n"
+let remove name st =
+  if List.exists (fun p -> p.name = name) st.players then
+    Legal
+      {
+        deck = st.deck;
+        players = List.filter (fun p -> p.name <> name) st.players;
+        pot = st.pot;
+        buy_in = st.buy_in;
+        board = st.board;
+      }
+  else Illegal "Error: Name does not exist in list of players!\n"
 
 let find_highest_amount (players : player list) =
   List.fold_left max 0 (List.map (fun p -> p.balance) players)
@@ -76,3 +72,13 @@ let state_to_string st =
   ^ cards_to_string st.board
   ^ unknown_cards_to_string st.board
   ^ "\n"
+
+let action cmd (st : t) =
+  match cmd with
+  | Command.Deal -> Illegal "Unimplmented function"
+  | Command.Call -> Illegal "Unimplmented function"
+  | Command.Raise i -> Illegal "Unimplmented function"
+  | Command.Check -> Illegal "Unimplmented function"
+  | Command.Fold -> Illegal "Unimplmented function"
+  | Command.AddPlayer name -> add name st
+  | Command.RemovePlayer name -> remove name st
