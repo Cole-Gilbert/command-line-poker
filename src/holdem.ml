@@ -150,7 +150,7 @@ let cards_to_string deck =
   List.fold_left (fun acc card -> acc ^ " " ^ card_to_string card) "" deck
 
 let player_to_string player =
-  player.name ^ ":"
+  player.name ^ ": "
   ^ cards_to_string player.hand
   ^ string_of_int player.balance
   ^ " Chips"

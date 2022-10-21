@@ -16,11 +16,16 @@ let rec get_input st =
   State.state_to_string st |> print_string;
   print_string "\n> ";
   match read_line () with
-  | exception End_of_file -> Command.Quit
+  | exception End_of_file ->
+      print_string "Please Enter a Command\n";
+      get_input st
   | input -> (
       match Command.parse input with
-      | exception Failure f ->
-          print_string "Invalid Command";
+      | exception Command.Malformed ->
+          print_string "Malformed Command. Please try again.\n";
+          get_input st
+      | exception Command.Empty ->
+          print_string "Please Enter a Command\n";
           get_input st
       | cmd -> cmd)
 

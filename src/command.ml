@@ -18,7 +18,7 @@ type command =
   | Quit
 
 let parse str =
-  match String.split_on_char ' ' str |> List.filter (fun _ -> str <> "") with
+  match String.split_on_char ' ' str |> List.filter (fun s -> s <> "") with
   | [] -> raise Empty
   | [ h ] ->
       if String.equal h "quit" then Quit
