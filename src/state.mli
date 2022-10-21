@@ -10,7 +10,7 @@ type t
 (** The type representing the result of an attempted turn. *)
 type result =
   | Legal of t
-  | Illegal
+  | Illegal of string
 
 val init : int -> t
 (** [init i] is the initial state of the game when playing holdem with i
@@ -20,8 +20,9 @@ val init : int -> t
 val turn : 'a -> 'b -> 'c -> 'd -> 'e
 (** unimplemented *)
 
-val edit : string -> t -> result
-(** [edit s a] adds a player with name s to a representing the game state.*)
+val edit : Command.edit -> t -> result
+(** [edit c a] adds or removes a player based on edit command c which contains a
+    name to edit a, which represents the game state.*)
 
 val quit : t -> string
 (** [quit a] returns a string representing the winner(s) of the game state,

@@ -26,4 +26,6 @@ let parse str =
       else raise Malformed
   | h :: t ->
       if String.equal h "add" then Edit (AddPlayer (String.concat " " t))
+      else if String.equal h "remove" then
+        Edit (RemovePlayer (String.concat " " t))
       else raise Malformed

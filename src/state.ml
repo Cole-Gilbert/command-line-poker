@@ -10,7 +10,7 @@ type t = {
 
 type result =
   | Legal of t
-  | Illegal
+  | Illegal of string
 
 let init buy_in =
   { deck = shuffled_deck (); players = []; pot = 0; buy_in; board = [] }
@@ -18,16 +18,30 @@ let init buy_in =
 let turn command player amount st =
   raise (Failure "deal, call, raise, check, and fold")
 
-let edit name st =
-  let p = Holdem.make_player name st.buy_in in
-  Legal
-    {
-      deck = st.deck;
-      players = p :: st.players;
-      pot = st.pot;
-      buy_in = st.buy_in;
-      board = st.board;
-    }
+let edit cmd st =
+  match cmd with
+  | Command.AddPlayer name ->
+      if List.exists (fun p -> p.name = name) st.players then
+        Illegal "Name already being used\n"
+      else
+        let p = Holdem.make_player name st.buy_in in
+        Legal
+          {
+            deck = st.deck;
+            players = p :: st.players;
+            pot = st.pot;
+            buy_in = st.buy_in;
+            board = st.board;
+          }
+  | Command.RemovePlayer name ->
+      Legal
+        {
+          deck = st.deck;
+          players = List.filter (fun p -> p.name <> name) st.players;
+          pot = st.pot;
+          buy_in = st.buy_in;
+          board = st.board;
+        }
 
 let find_highest_amount (players : player list) =
   List.fold_left max 0 (List.map (fun p -> p.balance) players)
