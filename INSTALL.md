@@ -1,4 +1,8 @@
-# Step 0: OPAM Housekeeping
+# Install Steps
+
+First step is to clone the repository onto your device:
+
+`$ git clone https://github.coecis.cornell.edu/maw346/3110-final-project.git`
 
 There is a new OPAM package that we need to install for this assignment. Before installing it, update OPAM:
 
@@ -15,3 +19,7 @@ If that tells you "Everything as up-to-date as possible [...] Nothing to do", wi
 Then install ANSITerminal, which we need for the text user interface in this assignment:
 
 `$ opam install ANSITerminal`
+
+To run the project use:
+
+`$ make play`
