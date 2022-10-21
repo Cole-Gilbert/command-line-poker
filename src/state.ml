@@ -18,16 +18,26 @@ let init buy_in =
 let turn command player amount st =
   raise (Failure "deal, call, raise, check, and fold")
 
-let edit name st =
-  let p = Holdem.make_player name st.buy_in in
-  Legal
-    {
-      deck = st.deck;
-      players = p :: st.players;
-      pot = st.pot;
-      buy_in = st.buy_in;
-      board = st.board;
-    }
+let edit name st adding =
+  if adding then
+    let p = Holdem.make_player name st.buy_in in
+    Legal
+      {
+        deck = st.deck;
+        players = p :: st.players;
+        pot = st.pot;
+        buy_in = st.buy_in;
+        board = st.board;
+      }
+  else
+    Legal
+      {
+        deck = st.deck;
+        players = List.filter (fun p -> p.name <> name) st.players;
+        pot = st.pot;
+        buy_in = st.buy_in;
+        board = st.board;
+      }
 
 let find_highest_amount (players : player list) =
   List.fold_left max 0 (List.map (fun p -> p.balance) players)

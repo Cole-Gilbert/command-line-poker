@@ -34,8 +34,9 @@ let rec get_input st =
 let rec game_loop st =
   match get_input st with
   | Turn turn -> raise (Failure "Turns unimplemented")
-  | Edit (AddPlayer name) -> State.edit name st |> validate st |> game_loop
-  | Edit (RemovePlayer _) -> raise (Failure "RemovePlayer unimplemented")
+  | Edit (AddPlayer name) -> State.edit name st true |> validate st |> game_loop
+  | Edit (RemovePlayer name) ->
+      State.edit name st false |> validate st |> game_loop
   | Quit -> State.quit st ^ "\n" |> print_string
 
 (** [buyin ()] is a valid integer buy-in amount *)
