@@ -17,9 +17,9 @@ test:
 play:
 	OCAMLRUNPARAM=b dune exec bin/main.exe
 
-# zip:
-# 	rm -f adventure.zip
-# 	zip -r adventure.zip . -x@exclude.lst
+zip:
+	rm -f final.zip
+	zip -r final.zip . -x@exclude.lst
 
 clean:
 	dune clean
