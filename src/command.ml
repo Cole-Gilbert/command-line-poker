@@ -1,9 +1,9 @@
 type action =
   | Deal
   | Call
-  | Raise of int
   | Check
   | Fold
+  | Raise of int
   | AddPlayer of string
   | RemovePlayer of string
 
@@ -17,12 +17,13 @@ type command =
 let parse str =
   match String.split_on_char ' ' str |> List.filter (fun s -> s <> "") with
   | [] -> raise Empty
-  | [ h ] ->
-      if String.equal h "quit" then Quit
-      else if String.equal h "deal" then Action Deal
-      else raise Malformed
-  | h :: t ->
-      if String.equal h "add" then Action (AddPlayer (String.concat " " t))
-      else if String.equal h "remove" then
-        Action (RemovePlayer (String.concat " " t))
-      else raise Malformed
+  | [ "quit" ] -> Quit
+  | [ "deal" ] -> Action Deal
+  | [ "call" ] -> Action Call
+  | [ "check" ] -> Action Check
+  | [ "fold" ] -> Action Fold
+  | [ "raise"; i ] -> (
+      try Action (Raise (int_of_string i)) with Failure _ -> raise Malformed)
+  | "add" :: t -> Action (AddPlayer (String.concat " " t))
+  | "remove" :: t -> Action (RemovePlayer (String.concat " " t))
+  | _ -> raise Malformed
