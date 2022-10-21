@@ -27,7 +27,7 @@ val fresh_deck : card list
 (**[fresh_deck] is a list (without duplicates) of all 52 playing cards in order.
    IE: Spades (A -> K), Hearts (A -> K), Diamonds (A -> K), Clubs (A -> K).*)
 
-val shuffled_deck : card list
+val shuffled_deck : unit -> card list
 (**[shuffled_deck] is a list (without duplicates) of a randomized deck of 52
    cards.*)
 
