@@ -5,6 +5,9 @@ type turn =
   | Check
   | Fold
 
+exception Empty
+exception Malformed
+
 type edit =
   | AddPlayer of string
   | RemovePlayer of string
@@ -14,4 +17,13 @@ type command =
   | Edit of edit
   | Quit
 
-let parse str = Quit
+let parse str =
+  match String.split_on_char ' ' str |> List.filter (fun _ -> str <> "") with
+  | [] -> raise Empty
+  | [ h ] ->
+      if String.equal h "quit" then Quit
+      else if String.equal h "deal" then Turn Deal
+      else raise Malformed
+  | h :: t ->
+      if String.equal h "add" then Edit (AddPlayer (String.concat " " t))
+      else raise Malformed
