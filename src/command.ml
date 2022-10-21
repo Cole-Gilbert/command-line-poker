@@ -1,20 +1,17 @@
-type turn =
+type action =
   | Deal
   | Call
   | Raise of int
   | Check
   | Fold
+  | AddPlayer of string
+  | RemovePlayer of string
 
 exception Empty
 exception Malformed
 
-type edit =
-  | AddPlayer of string
-  | RemovePlayer of string
-
 type command =
-  | Turn of turn
-  | Edit of edit
+  | Action of action
   | Quit
 
 let parse str =
@@ -22,10 +19,10 @@ let parse str =
   | [] -> raise Empty
   | [ h ] ->
       if String.equal h "quit" then Quit
-      else if String.equal h "deal" then Turn Deal
+      else if String.equal h "deal" then Action Deal
       else raise Malformed
   | h :: t ->
-      if String.equal h "add" then Edit (AddPlayer (String.concat " " t))
+      if String.equal h "add" then Action (AddPlayer (String.concat " " t))
       else if String.equal h "remove" then
-        Edit (RemovePlayer (String.concat " " t))
+        Action (RemovePlayer (String.concat " " t))
       else raise Malformed

@@ -50,8 +50,8 @@ let state_tests =
   let state = init 50 in
   [
     state_to_string_test "State to string using init state" state
-      "TABLE:\nNo current players\nPot: 0 Chips\nBoard: __ __ __ __ __";
-    quit_test "Quits using init state" state " won with an amount of 0";
+      "TABLE:\nNo current players\nPot: 0 Chips\nBoard: __ __ __ __ __\n";
+    quit_test "Quits using init state" state " won with an amount of 0\n\n";
   ]
 (******************************************************************
     OUnit test cases for Command
