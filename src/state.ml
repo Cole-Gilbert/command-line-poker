@@ -34,14 +34,16 @@ let edit cmd st =
             board = st.board;
           }
   | Command.RemovePlayer name ->
-      Legal
-        {
-          deck = st.deck;
-          players = List.filter (fun p -> p.name <> name) st.players;
-          pot = st.pot;
-          buy_in = st.buy_in;
-          board = st.board;
-        }
+      if List.exists (fun p -> p.name = name) st.players then
+        Legal
+          {
+            deck = st.deck;
+            players = List.filter (fun p -> p.name <> name) st.players;
+            pot = st.pot;
+            buy_in = st.buy_in;
+            board = st.board;
+          }
+      else Illegal "Name does not exist in list of players\n"
 
 let find_highest_amount (players : player list) =
   List.fold_left max 0 (List.map (fun p -> p.balance) players)
