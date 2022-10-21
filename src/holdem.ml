@@ -112,7 +112,7 @@ let shuffle deck =
     swap index random_index deck
   done
 
-let shuffled_deck =
+let shuffled_deck () =
   shuffle active_deck_arr;
   Array.to_list active_deck_arr
 
