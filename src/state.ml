@@ -52,7 +52,7 @@ let player_names_to_string (players : player list) =
 let quit st =
   let amt = find_highest_amount st.players in
   player_names_to_string (List.filter (fun p -> p.balance = amt) st.players)
-  ^ " won with an amount of " ^ string_of_int amt
+  ^ " won with an amount of " ^ string_of_int amt ^ "\n\n"
 
 let rec players_to_string players =
   match players with
@@ -73,3 +73,4 @@ let state_to_string st =
   ^ "Pot: " ^ string_of_int st.pot ^ " Chips\n" ^ "Board:"
   ^ cards_to_string st.board
   ^ unknown_cards_to_string st.board
+  ^ "\n"
