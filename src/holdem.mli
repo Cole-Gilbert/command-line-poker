@@ -50,4 +50,9 @@ val cards_to_string : card list -> string
 (**[cards_to_string lst] is the string representation of a card list [lst]. *)
 
 val player_to_string : player -> string
-(**[player_to_string p] is the string representation of a player [p].*)
+(**[player_to_string p] is the string representation of a player [p] without
+   revealing their hand.*)
+
+val revealed_player_to_string : player -> string
+(**[revealed_player_to_string p] is the string representation of a player [p]
+   showing the cards in their hand.*)

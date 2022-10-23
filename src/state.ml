@@ -7,6 +7,7 @@ type t = {
   buy_in : int;
   board : card list;
   active : bool;
+  blind_pos : int;
 }
 
 type result =
@@ -21,6 +22,7 @@ let init buy_in =
     buy_in;
     board = [];
     active = false;
+    blind_pos = 0;
   }
 
 let deal_to_player (p : player) st =
@@ -38,6 +40,7 @@ let deal_to_player (p : player) st =
     buy_in = st.buy_in;
     board = st.board;
     active = true;
+    blind_pos = st.blind_pos;
   }
 
 let deal st =
@@ -75,7 +78,8 @@ let add name st =
         pot = st.pot;
         buy_in = st.buy_in;
         board = st.board;
-        active = false;
+        active = st.active;
+        blind_pos = st.blind_pos;
       }
 
 let remove name st =
@@ -88,7 +92,8 @@ let remove name st =
         pot = st.pot;
         buy_in = st.buy_in;
         board = st.board;
-        active = false;
+        active = st.active;
+        blind_pos = st.blind_pos;
       }
   else Illegal "Error: Name does not exist in list of players!\n"
 
