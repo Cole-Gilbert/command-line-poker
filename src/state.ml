@@ -40,14 +40,11 @@ let deal_to_player (p : player) st =
     active = true;
   }
 
-let deal_to_players st =
-  List.fold_left (fun st p -> deal_to_player p st) st st.players
-
 let deal st =
   if st.active then Illegal "Error: The cards have already been dealt\n"
   else if List.length st.players = 0 then
     Illegal "Error: There are no players to deal to\n"
-  else Legal (deal_to_players st)
+  else Legal (List.fold_left (fun st p -> deal_to_player p st) st st.players)
 
 let call st =
   if not st.active then Illegal "Error: The cards have not been dealt yet\n"
