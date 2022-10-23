@@ -51,11 +51,7 @@ let deal st =
 
 let call st =
   if not st.active then Illegal "Error: The cards have not been dealt yet\n"
-  else
-    let () =
-      print_string (card_to_string (List.nth (List.hd st.players).hand 1))
-    in
-    Illegal "Error: Unimplemented\n"
+  else Illegal "Error: Unimplemented\n"
 
 let check st =
   if not st.active then Illegal "Error: The cards have not been dealt yet\n"
