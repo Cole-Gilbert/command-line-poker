@@ -19,8 +19,8 @@ val make_player : string -> int -> player
 (**[make_player name balance hand] initializes a player with name: [name];
    balance: [balance]; betting: 0; active: True; and hand:[].*)
 
-val deal_to : player -> card -> player
-(**[deal_to p c] adds a card [c] to a player's [p] hand. Requires: player's [p]
+val deal_to : card -> player -> player
+(**[deal_to c p] adds a card [c] to a player's [p] hand. Requires: player's [p]
    hand must have size < 2. *)
 
 val fresh_deck : card list
