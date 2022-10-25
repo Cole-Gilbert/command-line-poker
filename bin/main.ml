@@ -43,7 +43,7 @@ let rec buyin () =
       print_string "Please enter an integer.\n> ";
       buyin ()
   | input -> (
-      match int_of_string input with
+      match int_of_string (String.trim input) with
       | exception Failure m ->
           print_string "Please enter an integer.\n> ";
           buyin ()
