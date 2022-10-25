@@ -7,7 +7,7 @@ type t = {
   buy_in : int;
   board : card list;
   active : bool;
-  blind_pos : int;
+  position : int;
 }
 
 type result =
@@ -22,7 +22,7 @@ let init buy_in =
     buy_in;
     board = [];
     active = false;
-    blind_pos = 0;
+    position = 0;
   }
 
 let deal_to_player (p : player) st =
@@ -40,7 +40,7 @@ let deal_to_player (p : player) st =
     buy_in = st.buy_in;
     board = st.board;
     active = true;
-    blind_pos = st.blind_pos;
+    position = st.position;
   }
 
 let deal st =
@@ -79,7 +79,7 @@ let add name st =
         buy_in = st.buy_in;
         board = st.board;
         active = st.active;
-        blind_pos = st.blind_pos;
+        position = st.position;
       }
 
 let remove name st =
@@ -93,7 +93,7 @@ let remove name st =
         buy_in = st.buy_in;
         board = st.board;
         active = st.active;
-        blind_pos = st.blind_pos;
+        position = st.position;
       }
   else Illegal "Error: Name does not exist in list of players!\n"
 
@@ -107,16 +107,11 @@ let action cmd (st : t) : result =
   | Command.AddPlayer name -> add name st
   | Command.RemovePlayer name -> remove name st
 
-let find_highest_amount (players : player list) =
-  List.fold_left max 0 (List.map (fun p -> p.balance) players)
-
-let player_names_to_string (players : player list) =
-  String.concat ", " (List.map (fun p -> p.name) players)
-
 let quit st =
-  let amt = find_highest_amount st.players in
-  player_names_to_string (List.filter (fun p -> p.balance = amt) st.players)
-  ^ " won with an amount of " ^ string_of_int amt ^ "\n\n"
+  let amt = List.fold_left max 0 (List.map (fun p -> p.balance) st.players) in
+  let winners = List.filter (fun p -> p.balance = amt) st.players in
+  let player_names = String.concat ", " (List.map (fun p -> p.name) winners) in
+  player_names ^ " won with an amount of " ^ string_of_int amt ^ "\n\n"
 
 let rec players_to_string players =
   match players with
@@ -137,4 +132,9 @@ let state_to_string st =
   ^ "Pot: " ^ string_of_int st.pot ^ " Chips\n" ^ "Board:"
   ^ cards_to_string st.board
   ^ unknown_cards_to_string st.board
-  ^ "\n"
+  ^ "\n\n"
+  ^
+  if st.active then
+    let player = List.nth st.players st.position in
+    revealed_player_to_string player
+  else "You can add/remove players or deal cards"
