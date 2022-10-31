@@ -19,9 +19,6 @@ let rec get_input st =
   | exception Command.Malformed ->
       print_string "Malformed Command. Please try again.\n";
       get_input st
-  | exception Command.Empty ->
-      print_string "Please Enter a Command\n";
-      get_input st
   | cmd -> cmd
 
 (** [game_loop st] is the new state after following a command, or the current
