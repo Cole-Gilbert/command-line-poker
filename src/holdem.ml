@@ -156,7 +156,7 @@ let card_to_string card =
   | Clubs -> rank_to_string card.rank ^ "C"
 
 let cards_to_string deck =
-  List.fold_left (fun acc card -> acc ^ card_to_string card ^ " ") "" deck
+  List.fold_left (fun acc card -> acc ^ " " ^ card_to_string card) "" deck
 
 let player_to_string player =
   if List.length player.hand > 0 then
@@ -164,7 +164,8 @@ let player_to_string player =
   else player.name ^ ": __ __ " ^ string_of_int player.balance ^ " Chips"
 
 let revealed_player_to_string player =
-  player.name ^ ": "
+  player.name ^ ":"
   ^ cards_to_string player.hand
+  ^ " "
   ^ string_of_int player.balance
   ^ " Chips"

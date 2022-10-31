@@ -55,7 +55,8 @@ let state_tests =
        Pot: 0 Chips\n\
        Board: __ __ __ __ __\n\n\
        You can add/remove players or deal cards";
-    quit_test "Quits using init state" state " won with an amount of 0\n\n";
+    quit_test "Quits using init state" state
+      " won with an amount of 0 after 0 turns.\n\n";
   ]
 (******************************************************************
     OUnit test cases for Command

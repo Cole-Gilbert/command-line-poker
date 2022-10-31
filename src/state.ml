@@ -46,28 +46,51 @@ let comfirm st =
         confirmed = true;
       }
 
+let equals p1 p2 = p1.name = p2.name
+
+let update_pos st =
+  let len = List.length st.players in
+  let pos = ref (1 + (st.position mod len)) in
+  let () =
+    while not (List.nth st.players (!pos mod len)).active do
+      pos := !pos + 1
+    done
+  in
+  !pos
+
 let current_player st =
   let len = List.length st.players in
   let pos = st.position mod len in
   List.nth st.players pos
 
+let last_player st =
+  let len = List.length st.players in
+  let pos = (len - 1) mod len in
+  List.nth st.players pos
+
+let small_blind_player st =
+  let len = List.length st.players in
+  let pos = (len - 1 + st.position) mod len in
+  List.nth st.players pos
+
+let big_blind_player st =
+  let len = List.length st.players in
+  let pos = (len - 2 + st.position) mod len in
+  List.nth st.players pos
+
 let update_players st player =
-  List.map (fun p -> if p.name = player.name then player else p) st.players
+  List.map (fun p -> if equals p player then player else p) st.players
 
 let deal_to_player p st =
   let card1 = Holdem.top_card st.deck in
   let deck1 = Holdem.draw_from_deck st.deck in
   let card2 = Holdem.top_card deck1 in
   let pot = ref st.pot in
-  let len = List.length st.players in
   let player =
-    if (List.nth st.players ((len - 1 + st.position) mod len)).name = p.name
-    then
+    if small_blind_player st |> equals p then
       let () = pot := !pot + (st.min_bet / 2) in
       Holdem.pay_amount (st.min_bet / 2) p
-    else if
-      (List.nth st.players ((len - 2 + st.position) mod len)).name = p.name
-    then
+    else if big_blind_player st |> equals p then
       let () = pot := !pot + st.min_bet in
       Holdem.pay_amount st.min_bet p
     else p
@@ -97,21 +120,35 @@ let call st =
   if not st.active then Illegal "Error: The cards have not been dealt yet\n"
   else if not st.confirmed then Illegal "Error: Please confirm your turn\n"
   else
-    let players =
-      current_player st |> Holdem.pay_amount st.min_bet |> update_players st
-    in
-    Legal
-      {
-        deck = st.deck;
-        players;
-        pot = st.pot + st.min_bet;
-        buy_in = st.buy_in + st.min_bet;
-        board = st.board;
-        active = st.active;
-        position = st.position + 1;
-        min_bet = st.min_bet;
-        confirmed = false;
-      }
+    let player = current_player st in
+    let players = player |> Holdem.pay_amount st.min_bet |> update_players st in
+    if last_player st |> equals player then
+      let board = Holdem.top_card st.deck :: st.board in
+      Legal
+        {
+          deck = Holdem.draw_from_deck st.deck;
+          players;
+          pot = st.pot + st.min_bet;
+          buy_in = st.buy_in;
+          board;
+          active = st.active;
+          position = update_pos st;
+          min_bet = st.min_bet;
+          confirmed = false;
+        }
+    else
+      Legal
+        {
+          deck = st.deck;
+          players;
+          pot = st.pot + st.min_bet;
+          buy_in = st.buy_in;
+          board = st.board;
+          active = st.active;
+          position = update_pos st;
+          min_bet = st.min_bet;
+          confirmed = false;
+        }
 
 let check st =
   if not st.active then Illegal "Error: The cards have not been dealt yet\n"
@@ -194,7 +231,7 @@ let rec players_to_string players =
   | [] -> "No current players\n"
 
 let rec repeat_string n str =
-  if n = 0 then "" else str ^ repeat_string (n - 1) str
+  if n <= 0 then "" else str ^ repeat_string (n - 1) str
 
 let unknown_cards_to_string (board : card list) =
   let n = 5 - List.length board in
@@ -204,7 +241,7 @@ let state_to_string st =
   "TABLE:\n"
   ^ players_to_string st.players
   ^ "Pot: " ^ string_of_int st.pot ^ " Chips\n" ^ "Board:"
-  ^ cards_to_string st.board
+  ^ Holdem.cards_to_string st.board
   ^ unknown_cards_to_string st.board
   ^ "\n\n"
   ^
