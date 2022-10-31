@@ -17,9 +17,12 @@ let rec get_input st =
   print_string "\n> ";
   match Command.parse (read_line ()) with
   | exception Command.Malformed ->
+      ANSITerminal.erase Above;
       print_string "Malformed Command. Please try again.\n";
       get_input st
-  | cmd -> cmd
+  | cmd ->
+      ANSITerminal.erase Above;
+      cmd
 
 (** [game_loop st] is the new state after following a command, or the current
     state again if the command was Illegal *)

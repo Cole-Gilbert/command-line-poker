@@ -221,8 +221,7 @@ let quit st =
   let winners = List.filter (fun p -> p.balance = amt) st.players in
   let winner_names = List.map (fun p -> p.name) winners in
   winners_to_string winner_names
-  ^ " won with an amount of " ^ string_of_int amt ^ " after "
-  ^ string_of_int st.position ^ " turns." ^ "\n\n"
+  ^ " won with an amount of " ^ string_of_int amt ^ ".\n\n"
 
 let rec players_to_string players =
   match players with
