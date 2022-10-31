@@ -25,7 +25,7 @@ let init buy_in =
     board = [];
     active = false;
     position = 0;
-    min_bet = buy_in;
+    min_bet = buy_in / 100;
     confirmed = false;
   }
 
@@ -46,18 +46,39 @@ let comfirm st =
         confirmed = true;
       }
 
-let deal_to_player (p : player) st =
+let current_player st =
+  let len = List.length st.players in
+  let pos = st.position mod len in
+  List.nth st.players pos
+
+let update_players st player =
+  List.map (fun p -> if p.name = player.name then player else p) st.players
+
+let deal_to_player p st =
   let card1 = Holdem.top_card st.deck in
   let deck1 = Holdem.draw_from_deck st.deck in
   let card2 = Holdem.top_card deck1 in
-  let player = Holdem.deal_to card1 p |> Holdem.deal_to card2 in
+  let pot = ref st.pot in
+  let len = List.length st.players in
+  let player =
+    if (List.nth st.players ((len - 1 + st.position) mod len)).name = p.name
+    then
+      let () = pot := !pot + (st.min_bet / 2) in
+      Holdem.pay_amount (st.min_bet / 2) p
+    else if
+      (List.nth st.players ((len - 2 + st.position) mod len)).name = p.name
+    then
+      let () = pot := !pot + st.min_bet in
+      Holdem.pay_amount st.min_bet p
+    else p
+  in
   let players =
-    List.map (fun pl1 -> if pl1 = p then player else pl1) st.players
+    Holdem.deal_to card1 player |> Holdem.deal_to card2 |> update_players st
   in
   {
     deck = Holdem.draw_from_deck deck1;
     players;
-    pot = st.pot;
+    pot = !pot;
     buy_in = st.buy_in;
     board = st.board;
     active = true;
@@ -68,13 +89,29 @@ let deal_to_player (p : player) st =
 
 let deal st =
   if st.active then Illegal "Error: The cards have already been dealt\n"
-  else if List.length st.players = 0 then
-    Illegal "Error: There are no players to deal to\n"
+  else if List.length st.players < 2 then
+    Illegal "Error: There must be at least 2 players to start playing\n"
   else Legal (List.fold_left (fun st p -> deal_to_player p st) st st.players)
 
 let call st =
   if not st.active then Illegal "Error: The cards have not been dealt yet\n"
-  else Illegal "Error: Unimplemented\n"
+  else if not st.confirmed then Illegal "Error: Please confirm your turn\n"
+  else
+    let players =
+      current_player st |> Holdem.pay_amount st.min_bet |> update_players st
+    in
+    Legal
+      {
+        deck = st.deck;
+        players;
+        pot = st.pot + st.min_bet;
+        buy_in = st.buy_in + st.min_bet;
+        board = st.board;
+        active = st.active;
+        position = st.position + 1;
+        min_bet = st.min_bet;
+        confirmed = false;
+      }
 
 let check st =
   if not st.active then Illegal "Error: The cards have not been dealt yet\n"
@@ -135,11 +172,20 @@ let action cmd (st : t) : result =
   | Command.AddPlayer name -> add name st
   | Command.RemovePlayer name -> remove name st
 
+let rec winners_to_string names =
+  match names with
+  | [ h1; h2 ] -> h1 ^ ", and " ^ h2
+  | [ h1 ] -> h1
+  | h1 :: t -> h1 ^ ", " ^ winners_to_string t
+  | [] -> ""
+
 let quit st =
   let amt = List.fold_left max 0 (List.map (fun p -> p.balance) st.players) in
   let winners = List.filter (fun p -> p.balance = amt) st.players in
-  let player_names = String.concat ", " (List.map (fun p -> p.name) winners) in
-  player_names ^ " won with an amount of " ^ string_of_int amt ^ "\n\n"
+  let winner_names = List.map (fun p -> p.name) winners in
+  winners_to_string winner_names
+  ^ " won with an amount of " ^ string_of_int amt ^ " after "
+  ^ string_of_int st.position ^ " turns." ^ "\n\n"
 
 let rec players_to_string players =
   match players with
@@ -163,7 +209,7 @@ let state_to_string st =
   ^ "\n\n"
   ^
   if st.active then
-    let player = List.nth st.players st.position in
+    let player = current_player st in
     if st.confirmed then revealed_player_to_string player
     else
       Holdem.player_to_string player

@@ -23,6 +23,9 @@ val deal_to : card -> player -> player
 (**[deal_to c p] adds a card [c] to a player's [p] hand. Requires: player's [p]
    hand must have size < 2. *)
 
+val pay_amount : int -> player -> player
+(**[pay_amount i p] removes chips [i] from a player's [p] balance. *)
+
 val fresh_deck : card list
 (**[fresh_deck] is a list (without duplicates) of all 52 playing cards in order.
    IE: Spades (A -> K), Hearts (A -> K), Diamonds (A -> K), Clubs (A -> K).*)

@@ -32,6 +32,15 @@ let deal_to card player =
     hand = card :: player.hand;
   }
 
+let pay_amount amt player =
+  {
+    name = player.name;
+    balance = player.balance - amt;
+    betting = player.betting;
+    active = player.active;
+    hand = player.hand;
+  }
+
 (*For testing purposes*)
 let fresh_deck =
   [
