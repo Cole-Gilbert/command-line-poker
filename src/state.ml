@@ -54,17 +54,31 @@ let current_player st =
 let update_players st player =
   List.map (fun p -> if p.name = player.name then player else p) st.players
 
-let deal_to_player player st =
+let deal_to_player p st =
   let card1 = Holdem.top_card st.deck in
   let deck1 = Holdem.draw_from_deck st.deck in
   let card2 = Holdem.top_card deck1 in
+  let pot = ref st.pot in
+  let len = List.length st.players in
+  let player =
+    if (List.nth st.players ((len - 1 + st.position) mod len)).name = p.name
+    then
+      let () = pot := !pot + (st.min_bet / 2) in
+      Holdem.pay_amount (st.min_bet / 2) p
+    else if
+      (List.nth st.players ((len - 2 + st.position) mod len)).name = p.name
+    then
+      let () = pot := !pot + st.min_bet in
+      Holdem.pay_amount st.min_bet p
+    else p
+  in
   let players =
     Holdem.deal_to card1 player |> Holdem.deal_to card2 |> update_players st
   in
   {
     deck = Holdem.draw_from_deck deck1;
     players;
-    pot = st.pot + st.min_bet + (st.min_bet / 2);
+    pot = !pot;
     buy_in = st.buy_in;
     board = st.board;
     active = true;
@@ -75,8 +89,8 @@ let deal_to_player player st =
 
 let deal st =
   if st.active then Illegal "Error: The cards have already been dealt\n"
-  else if List.length st.players = 0 then
-    Illegal "Error: There are no players to deal to\n"
+  else if List.length st.players < 2 then
+    Illegal "Error: There must be at least 2 players to start playing\n"
   else Legal (List.fold_left (fun st p -> deal_to_player p st) st st.players)
 
 let call st =
