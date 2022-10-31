@@ -8,6 +8,8 @@ type t = {
   board : card list;
   active : bool;
   position : int;
+  min_bet : int;
+  confirmed : bool;
 }
 
 type result =
@@ -23,7 +25,26 @@ let init buy_in =
     board = [];
     active = false;
     position = 0;
+    min_bet = buy_in;
+    confirmed = false;
   }
+
+let comfirm st =
+  if (not st.active) || st.confirmed then
+    Illegal "Error: Please Enter a Command\n"
+  else
+    Legal
+      {
+        deck = st.deck;
+        players = st.players;
+        pot = st.pot;
+        buy_in = st.buy_in;
+        board = st.board;
+        active = st.active;
+        position = st.position;
+        min_bet = st.min_bet;
+        confirmed = true;
+      }
 
 let deal_to_player (p : player) st =
   let card1 = Holdem.top_card st.deck in
@@ -41,6 +62,8 @@ let deal_to_player (p : player) st =
     board = st.board;
     active = true;
     position = st.position;
+    min_bet = st.min_bet;
+    confirmed = st.confirmed;
   }
 
 let deal st =
@@ -80,6 +103,8 @@ let add name st =
         board = st.board;
         active = st.active;
         position = st.position;
+        min_bet = st.min_bet;
+        confirmed = st.confirmed;
       }
 
 let remove name st =
@@ -94,11 +119,14 @@ let remove name st =
         board = st.board;
         active = st.active;
         position = st.position;
+        min_bet = st.min_bet;
+        confirmed = st.confirmed;
       }
   else Illegal "Error: Name does not exist in list of players!\n"
 
 let action cmd (st : t) : result =
   match cmd with
+  | Command.Comfirm -> comfirm st
   | Command.Deal -> deal st
   | Command.Call -> call st
   | Command.Check -> check st
@@ -136,5 +164,8 @@ let state_to_string st =
   ^
   if st.active then
     let player = List.nth st.players st.position in
-    revealed_player_to_string player
+    if st.confirmed then revealed_player_to_string player
+    else
+      Holdem.player_to_string player
+      ^ ", are you ready? Press enter to start your turn."
   else "You can add/remove players or deal cards"

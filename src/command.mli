@@ -4,6 +4,7 @@
     parsing a string into the data types specified *)
 
 type action =
+  | Comfirm
   | Deal
   | Call
   | Check
@@ -15,9 +16,6 @@ type action =
 type command =
   | Action of action
   | Quit  (** The type representing a whole player command *)
-
-exception Empty
-(** Raised when attempting to parse an empty command *)
 
 exception Malformed
 (** Raised when attempting to parse an invalid command *)

@@ -1,4 +1,5 @@
 type action =
+  | Comfirm
   | Deal
   | Call
   | Check
@@ -7,7 +8,6 @@ type action =
   | AddPlayer of string
   | RemovePlayer of string
 
-exception Empty
 exception Malformed
 
 type command =
@@ -16,7 +16,7 @@ type command =
 
 let parse str =
   match String.split_on_char ' ' str |> List.filter (fun s -> s <> "") with
-  | [] -> raise Empty
+  | [] -> Action Comfirm
   | [ "quit" ] -> Quit
   | [ "deal" ] -> Action Deal
   | [ "call" ] -> Action Call
