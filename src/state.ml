@@ -110,11 +110,29 @@ let deal_to_player p st =
     confirmed = st.confirmed;
   }
 
+let find_winners = Illegal "unimplemented"
+
 let deal st =
   if st.active then Illegal "Error: The cards have already been dealt\n"
   else if List.length st.players < 2 then
     Illegal "Error: There must be at least 2 players to start playing\n"
   else Legal (List.fold_left (fun st p -> deal_to_player p st) st st.players)
+
+let deal_to_board st =
+  let board = Holdem.top_card st.deck :: st.board in
+  {
+    deck = Holdem.draw_from_deck st.deck;
+    players = st.players;
+    pot = st.pot;
+    buy_in = st.buy_in;
+    board;
+    active = st.active;
+    position = st.position;
+    min_bet = st.min_bet;
+    confirmed = st.confirmed;
+  }
+
+let deal_flop st = st |> deal_to_board |> deal_to_board |> deal_to_board
 
 let call st =
   if not st.active then Illegal "Error: The cards have not been dealt yet\n"
@@ -123,19 +141,23 @@ let call st =
     let player = current_player st in
     let players = player |> Holdem.pay_amount st.min_bet |> update_players st in
     if last_player st |> equals player then
-      let board = Holdem.top_card st.deck :: st.board in
-      Legal
-        {
-          deck = Holdem.draw_from_deck st.deck;
-          players;
-          pot = st.pot + st.min_bet;
-          buy_in = st.buy_in;
-          board;
-          active = st.active;
-          position = update_pos st;
-          min_bet = st.min_bet;
-          confirmed = false;
-        }
+      let len = List.length st.board in
+      if len = 5 then find_winners
+      else
+        let min_bet = 0 in
+        let state = if len = 0 then deal_flop st else deal_to_board st in
+        Legal
+          {
+            deck = state.deck;
+            players;
+            pot = st.pot + st.min_bet;
+            buy_in = st.buy_in;
+            board = state.board;
+            active = st.active;
+            position = update_pos st;
+            min_bet;
+            confirmed = false;
+          }
     else
       Legal
         {
