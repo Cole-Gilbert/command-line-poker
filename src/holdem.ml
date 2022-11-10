@@ -150,10 +150,10 @@ let rank_to_string rank =
 
 let card_to_string card =
   match card.suit with
-  | Spades -> rank_to_string card.rank ^ "S"
-  | Hearts -> rank_to_string card.rank ^ "H"
-  | Diamonds -> rank_to_string card.rank ^ "D"
-  | Clubs -> rank_to_string card.rank ^ "C"
+  | Spades -> rank_to_string card.rank ^ "♠"
+  | Hearts -> rank_to_string card.rank ^ "♥"
+  | Diamonds -> rank_to_string card.rank ^ "♦"
+  | Clubs -> rank_to_string card.rank ^ "♣"
 
 let cards_to_string deck =
   List.fold_left (fun acc card -> acc ^ " " ^ card_to_string card) "" deck

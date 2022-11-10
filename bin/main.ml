@@ -16,6 +16,7 @@ let rec get_input st =
   State.state_to_string st |> print_string;
   print_string "\n> ";
   match Command.parse (read_line ()) with
+  | exception End_of_file -> Quit
   | exception Command.Malformed ->
       ANSITerminal.erase Above;
       print_string "Malformed Command. Please try again.\n";
