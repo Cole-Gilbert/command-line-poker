@@ -1,6 +1,5 @@
 (*Module representing static holdem data.*)
 
-(**Enumeration type for suit of a card.*)
 type suit =
   | Spades
   | Hearts
@@ -45,7 +44,7 @@ let pay_amount amt player =
 let fresh_deck =
   [
     (*Spades A -> K*)
-    { suit = Spades; rank = 1 };
+    { suit = Spades; rank = 14 };
     { suit = Spades; rank = 3 };
     { suit = Spades; rank = 4 };
     { suit = Spades; rank = 2 };
@@ -59,7 +58,7 @@ let fresh_deck =
     { suit = Spades; rank = 12 };
     { suit = Spades; rank = 13 };
     (*Hearts A -> K*)
-    { suit = Hearts; rank = 1 };
+    { suit = Hearts; rank = 14 };
     { suit = Hearts; rank = 2 };
     { suit = Hearts; rank = 3 };
     { suit = Hearts; rank = 4 };
@@ -73,7 +72,7 @@ let fresh_deck =
     { suit = Hearts; rank = 12 };
     { suit = Hearts; rank = 13 };
     (*Diamonds A -> K*)
-    { suit = Diamonds; rank = 1 };
+    { suit = Diamonds; rank = 14 };
     { suit = Diamonds; rank = 2 };
     { suit = Diamonds; rank = 3 };
     { suit = Diamonds; rank = 4 };
@@ -87,7 +86,7 @@ let fresh_deck =
     { suit = Diamonds; rank = 12 };
     { suit = Diamonds; rank = 13 };
     (*Clubs A -> K*)
-    { suit = Clubs; rank = 1 };
+    { suit = Clubs; rank = 14 };
     { suit = Clubs; rank = 2 };
     { suit = Clubs; rank = 3 };
     { suit = Clubs; rank = 4 };
@@ -138,14 +137,14 @@ let draw_from_deck deck =
   | h :: t -> t
 
 (**[rank_to_string i] onverts the numerical rank [i] of a card to its
-   corresponding string. IE: 1 -> "A", 2 -> "2", etc. Requires: i <= 13 and i >=
-   1*)
+   corresponding string. IE: 1 -> "A", 2 -> "2", etc. Requires: i <= 14 and i >=
+   2*)
 let rank_to_string rank =
   match rank with
+  | 14 -> "A"
   | 13 -> "K"
   | 12 -> "Q"
   | 11 -> "J"
-  | 1 -> "A"
   | _ -> Int.to_string rank
 
 let card_to_string card =

@@ -3,7 +3,17 @@
     This module represents the data stored in the Texas Hold 'em poker game
     files, including the players and the deck of cards. *)
 
-type card
+(**Enumeration type for suit of a card.*)
+type suit =
+  | Spades
+  | Hearts
+  | Diamonds
+  | Clubs
+
+type card = {
+  suit : suit;
+  rank : int;
+}
 (**The abstract type of values representing a playing card.*)
 
 type player = {
