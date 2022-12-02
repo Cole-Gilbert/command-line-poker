@@ -31,34 +31,36 @@ type result =
    functions named "check_..." take in a Holdem.card list
  *****************************************************************************)
 
-(** [is_flush cards] is true if all the cards in [cards] have the same suit 
+(** [is_flush cards] is true if all the cards in [cards] have the same suit
     Requires: [cards] is not empty.*)
-let is_flush (cards : Holdem.card list) : bool = 
+let is_flush (cards : Holdem.card list) : bool =
   match cards with
-  | h::t -> 
-    (let rec is_suited (suit : Holdem.suit) (cards : Holdem.card list) = 
-    match cards with
-    | h::t -> if h.suit = suit then is_suited suit t else false
-    | [] -> true in is_suited h.suit t)
+  | h :: t ->
+      let rec is_suited (suit : Holdem.suit) (cards : Holdem.card list) =
+        match cards with
+        | h :: t -> if h.suit = suit then is_suited suit t else false
+        | [] -> true
+      in
+      is_suited h.suit t
   | [] -> failwith "Violates precondition (Hand cannot be empty)"
 
-(** [is_straight cards] is true if all the cards in [cards] are in order 
-  IE 2,3,4,5,6 
-  Requires: [cards] is not empty, [cards] contains no aces.*)
-let is_straight (cards : Holdem.card list) : bool = 
+(** [is_straight cards] is true if all the cards in [cards] are in order IE
+    2,3,4,5,6 Requires: [cards] is not empty, [cards] contains no aces.*)
+let is_straight (cards : Holdem.card list) : bool =
   let rec is_rank_below (prev : int) (cards : Holdem.card list) : bool =
-  match cards with
-  | h::t -> if prev = h.rank then is_rank_below h.rank t else false
-  | [] -> true
-  in is_rank_below (List.hd cards).rank (List.tl cards)
+    match cards with
+    | h :: t -> if prev = h.rank then is_rank_below h.rank t else false
+    | [] -> true
+  in
+  is_rank_below (List.hd cards).rank (List.tl cards)
 
 (**[remove_ace cards] is the card list of cards in [cards] with any aces removed
-    . Requires: [cards] in reverse sorted order (decreasing, by rank),
-      [cards] is not empty.*)
-let remove_ace (cards : Holdem.card list) : Holdem.card list = 
-    match cards with 
-    | h::t -> if h.rank = 14 then t else cards
-    | [] -> failwith "Violates precondition (Hand cannot be empty)"
+   . Requires: [cards] in reverse sorted order (decreasing, by rank), [cards] is
+   not empty.*)
+let remove_ace (cards : Holdem.card list) : Holdem.card list =
+  match cards with
+  | h :: t -> if h.rank = 14 then t else cards
+  | [] -> failwith "Violates precondition (Hand cannot be empty)"
 
 (** [to_rank_mult cards] is a helper method that transforms [cards] to a list of
     (int * int) tuples containing the respective ranks and multiplicities of the
@@ -86,9 +88,10 @@ let find_rank_of_mult mult (rm_list : (int * int) list) : int option =
     | [] -> None
   in
   frm_aux mult rm_list
-(**[remove_by_rank rank rank_mult_list] removes the element with rank [rank] 
-    from [rank_mult_list]. List remains unchanged if [rank_mult_list] does not 
-      contain an element with rank [rank]*)
+
+(** [remove_by_rank rank rank_mult_list] removes the element with rank [rank]
+    from [rank_mult_list]. List remains unchanged if [rank_mult_list] does not
+    contain an element with rank [rank] *)
 let remove_by_rank rank (rm_list : (int * int) list) =
   List.filter (fun elt -> fst elt <> rank) rm_list
 
@@ -102,7 +105,7 @@ let to_kickers (rm_list : (int * int) list) : int list =
   in
   to_kickers_aux rm_list
 
-(** [check_highcard cards] converts [cards] to [(Highcard (rank * kickers)]*)
+(** [check_highcard cards] converts [cards] to [Highcard (rank * kickers)] *)
 let check_highcard (cards : Holdem.card list) : hand =
   match cards with
   | h :: t ->
@@ -116,28 +119,23 @@ let check_highcard (cards : Holdem.card list) : hand =
 (**[check_seq cards] is [Some hand] or None if the cards do not contain a
    straight, flush, straight flush, or royal straight. *)
 let check_seq (cards : Holdem.card list) : hand option =
-  if cards |> is_flush then 
+  if cards |> is_flush then
     let no_ace_hand = remove_ace cards in
     if no_ace_hand |> is_straight then
-      if (List.length no_ace_hand = 4) then
-        if ((List.hd no_ace_hand).rank = 13) then
-          Some (RoyalFlush (14))
-        else Some (StraightFlush ((List.hd cards).rank))
-      else Some (StraightFlush ((List.hd cards).rank))
-    else Some (Flush ((List.hd cards).rank))
-  else
-    if cards |> is_straight then 
-      Some (Straight ((List.hd cards).rank))
-    else
-      None
+      if List.length no_ace_hand = 4 then
+        if (List.hd no_ace_hand).rank = 13 then Some (RoyalFlush 14)
+        else Some (StraightFlush (List.hd cards).rank)
+      else Some (StraightFlush (List.hd cards).rank)
+    else Some (Flush (List.hd cards).rank)
+  else if cards |> is_straight then Some (Straight (List.hd cards).rank)
+  else None
 
 (**[find_pair rank_mult_list] is Some [Pair (rank * kickers)] or None if
    [rank_mult_list] doesn't contain a pair.*)
 let find_pair (rm_list : (int * int) list) : hand option =
   let pair_rank = find_rank_of_mult 2 rm_list in
   match pair_rank with
-  | Some rank -> Some 
-    (Pair (rank, ((remove_by_rank rank rm_list) |> to_kickers)))
+  | Some rank -> Some (Pair (rank, remove_by_rank rank rm_list |> to_kickers))
   | None -> None
 
 (**[find_two_pair rank_mult_list] is Some [TwoPair (rank * kickers)] or None if
@@ -145,14 +143,18 @@ let find_pair (rm_list : (int * int) list) : hand option =
 let find_two_pair (rm_list : (int * int) list) : hand option =
   let first_pair_rank = find_rank_of_mult 2 rm_list in
   match first_pair_rank with
-  | Some first_rank -> 
-    (let second_pair_rank = 
-      find_rank_of_mult 2 (remove_by_rank first_rank rm_list) in 
-    match second_pair_rank with
-    | Some second_rank -> 
-      Some (TwoPair (first_rank, second_rank, 
-      ((remove_by_rank second_rank rm_list) |> to_kickers)))
-    | None -> None)
+  | Some first_rank -> (
+      let second_pair_rank =
+        find_rank_of_mult 2 (remove_by_rank first_rank rm_list)
+      in
+      match second_pair_rank with
+      | Some second_rank ->
+          Some
+            (TwoPair
+               ( first_rank,
+                 second_rank,
+                 remove_by_rank second_rank rm_list |> to_kickers ))
+      | None -> None)
   | None -> None
 
 (**[find_three_of_a_kind rank_mult_list] is Some [ThreeOfAKind (rank * kickers)]
@@ -160,8 +162,7 @@ let find_two_pair (rm_list : (int * int) list) : hand option =
 let find_three_of_a_kind (rm_list : (int * int) list) : hand option =
   let three_oak_rank = find_rank_of_mult 3 rm_list in
   match three_oak_rank with
-  | Some rank -> 
-    Some (Pair (rank, ((remove_by_rank rank rm_list) |> to_kickers)))
+  | Some rank -> Some (Pair (rank, remove_by_rank rank rm_list |> to_kickers))
   | None -> None
 
 (**[find_full_house rank_mult_list] is Some [FullHouse (rank * rank)] or None if
@@ -169,11 +170,11 @@ let find_three_of_a_kind (rm_list : (int * int) list) : hand option =
 let find_full_house (rm_list : (int * int) list) : hand option =
   let three_oak_rank = find_rank_of_mult 3 rm_list in
   match three_oak_rank with
-  | Some three_rank -> 
-    (let pair_rank = find_rank_of_mult 2 rm_list in
-    match pair_rank with
-    | Some two_rank -> Some (FullHouse (three_rank, two_rank))
-    | None -> None)
+  | Some three_rank -> (
+      let pair_rank = find_rank_of_mult 2 rm_list in
+      match pair_rank with
+      | Some two_rank -> Some (FullHouse (three_rank, two_rank))
+      | None -> None)
   | None -> None
 
 (**[find_four_of_a_kind rank_mult_list] is Some [FourOfAKind (rank)] or None if
@@ -181,7 +182,7 @@ let find_full_house (rm_list : (int * int) list) : hand option =
 let find_four_of_a_kind (rm_list : (int * int) list) : hand option =
   let four_oak_rank = find_rank_of_mult 2 rm_list in
   match four_oak_rank with
-  | Some rank -> Some (FourOfAKind (rank))
+  | Some rank -> Some (FourOfAKind rank)
   | None -> None
 
 (** [rank_5 cards] is the hand representation of a five card poker hand *)
@@ -198,7 +199,7 @@ let rank_5 (cards : Holdem.card list) : hand =
     match find_pair rank_mult_list with
     (*One card is a pair*)
     | Some hand -> hand
-    | None -> failwith "Impossible state"
+    | None -> failwith "Impossible state 1"
   else if rml_size = 3 then
     (*Either three of a kind or two pair.*)
     match find_two_pair rank_mult_list with
@@ -206,7 +207,7 @@ let rank_5 (cards : Holdem.card list) : hand =
     | None -> (
         match find_three_of_a_kind rank_mult_list with
         | Some hand -> hand
-        | None -> failwith "Impossible state")
+        | None -> failwith "Impossible state 2")
   else if rml_size = 2 then
     (*Either full house or four of a kind*)
     match find_full_house rank_mult_list with
@@ -214,8 +215,8 @@ let rank_5 (cards : Holdem.card list) : hand =
     | None -> (
         match find_four_of_a_kind rank_mult_list with
         | Some hand -> hand
-        | None -> failwith "Impossible state")
-  else failwith "Impossible state" (*Impossible with normal 52 card deck*)
+        | None -> failwith "Impossible state 3")
+  else failwith "Impossible state 4" (*Impossible with normal 52 card deck*)
 
 (** [hand_value h] is the int list representing the strength of the hand.
     Greater strength is indicated by a higher int, and each int takes precedent
@@ -233,6 +234,16 @@ let hand_value (h : hand) : int list =
   | TwoPair (rank1, rank2, kickers) -> 2 :: rank1 :: rank2 :: kickers
   | Pair (rank, kickers) -> 1 :: rank :: kickers
   | HighCard (rank, kickers) -> 0 :: rank :: kickers
+
+(** [string_of_hand_value lst] is the string of an int list representing a hand
+    useful for testing *)
+let string_of_hand_value lst =
+  let rec string_of_hand_value_aux = function
+    | [] -> ""
+    | [ h ] -> string_of_int h
+    | h :: t -> string_of_int h ^ ", " ^ string_of_hand_value_aux t
+  in
+  "[" ^ string_of_hand_value_aux lst ^ "]"
 
 (** [compare_hands h1 h2] is the result [Win] if the first hand is stronger,
     [Loss] if the second hand is stronger, and [Chop] if they are even *)
@@ -293,6 +304,8 @@ let showdown (board : Holdem.card list) (players : Holdem.player list) :
   let fold_aux (win_acc : Holdem.player list * hand option) (p : Holdem.player)
       =
     let p_hand = best_hand board p in
+    (* print_string (" " ^ p.name ^ ": " ^ string_of_hand_value (hand_value
+       p_hand)); *)
     match win_acc with
     | [], None | [], Some _ | _, None -> ([ p ], Some p_hand)
     | winners, Some top_hand -> (

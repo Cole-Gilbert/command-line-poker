@@ -178,6 +178,31 @@ let showdown_tests =
         make_player "p8" [ ("S", 8); ("C", 14) ];
       ]
       [ "p6" ];
+    showdown_test "Six Players with Two Winners"
+      (make_board [ ("C", 14); ("D", 12); ("C", 12); ("S", 9); ("S", 4) ])
+      [
+        make_player "p1" [ ("H", 9); ("D", 2) ];
+        make_player "p2" [ ("D", 13); ("D", 9) ];
+        make_player "p3" [ ("D", 6); ("D", 8) ];
+        make_player "p4" [ ("S", 13); ("D", 11) ];
+        make_player "p5" [ ("C", 2); ("H", 3) ];
+        make_player "p6" [ ("H", 2); ("H", 5) ];
+      ]
+      [ "p1"; "p2" ];
+    showdown_test "FAILING 1 - Two Players with One Winner"
+      (make_board [ ("D", 12); ("D", 5); ("C", 12); ("H", 4); ("S", 2) ])
+      [
+        make_player "p1" [ ("H", 6); ("S", 12) ];
+        make_player "p2" [ ("H", 9); ("C", 5) ];
+      ]
+      [ "p1" ];
+    showdown_test "FAILING 2 - Two Players with One Winner"
+      (make_board [ ("D", 12); ("D", 5); ("C", 12); ("H", 4); ("S", 2) ])
+      [
+        make_player "p1" [ ("H", 12); ("S", 12) ];
+        make_player "p2" [ ("H", 9); ("C", 5) ];
+      ]
+      [ "p1" ];
   ]
 
 (******************************************************************
