@@ -154,8 +154,67 @@ let card_to_string card =
   | Diamonds -> rank_to_string card.rank ^ "♦"
   | Clubs -> rank_to_string card.rank ^ "♣"
 
-let cards_to_string deck =
-  List.fold_left (fun acc card -> acc ^ " " ^ card_to_string card) "" deck
+let rec cards_to_string (deck : card list) =
+  match deck with
+  | [] -> ""
+  | h :: b :: c :: d :: e :: t ->
+      "\n" ^ " ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐"
+      ^ "\n" ^ " │" ^ rank_to_string h.rank ^ "        │  │"
+      ^ rank_to_string b.rank ^ "        │  │" ^ rank_to_string c.rank
+      ^ "        │  │" ^ rank_to_string d.rank ^ "        │  │"
+      ^ rank_to_string e.rank ^ "        │  " ^ "\n"
+      ^ " │         │  │         │  │         │  │         │  │         │ "
+      ^ "\n"
+      ^ " │         │  │         │  │         │  │         │  │         │ "
+      ^ "\n" ^ " │    " ^ card_to_string h ^ "   │  │    " ^ card_to_string b
+      ^ "   │  │    " ^ card_to_string c ^ "   │  │    " ^ card_to_string d
+      ^ "   │  │    " ^ card_to_string e ^ "   │ " ^ "\n"
+      ^ " │         │  │         │  │         │  │         │  │         │ "
+      ^ "\n"
+      ^ " │         │  │         │  │         │  │         │  │         │ "
+      ^ "\n" ^ " │        " ^ rank_to_string h.rank ^ "│  │        "
+      ^ rank_to_string b.rank ^ "│  │        " ^ rank_to_string c.rank
+      ^ "│  │        " ^ rank_to_string d.rank ^ "│  │        "
+      ^ rank_to_string e.rank ^ "│ " ^ "\n"
+      ^ " └─────────┘  └─────────┘  └─────────┘  └─────────┘  └─────────┘ "
+  | h :: b :: c :: d :: t ->
+      "\n" ^ " ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐ " ^ "\n"
+      ^ " │" ^ rank_to_string h.rank ^ "        │  │" ^ rank_to_string b.rank
+      ^ "        │  │" ^ rank_to_string c.rank ^ "        │  │"
+      ^ rank_to_string d.rank ^ "        │  " ^ "\n"
+      ^ " │         │  │         │  │         │  │         │ " ^ "\n"
+      ^ " │         │  │         │  │         │  │         │ " ^ "\n" ^ " │    "
+      ^ card_to_string h ^ "   │  │    " ^ card_to_string b ^ "   │  │    "
+      ^ card_to_string c ^ "   │  │    " ^ card_to_string d ^ "   │ " ^ "\n"
+      ^ " │         │  │         │  │         │  │         │ " ^ "\n"
+      ^ " │         │  │         │  │         │  │         │ " ^ "\n"
+      ^ " │        " ^ rank_to_string h.rank ^ "│  │        "
+      ^ rank_to_string b.rank ^ "│  │        " ^ rank_to_string c.rank
+      ^ "│  │        " ^ rank_to_string d.rank ^ "│ " ^ "\n"
+      ^ " └─────────┘  └─────────┘  └─────────┘  └─────────┘ "
+  | h :: b :: c :: t ->
+      "\n" ^ " ┌─────────┐  ┌─────────┐  ┌─────────┐ " ^ "\n" ^ " │"
+      ^ rank_to_string h.rank ^ "        │  │" ^ rank_to_string b.rank
+      ^ "        │  │" ^ rank_to_string c.rank ^ "        │  " ^ "\n"
+      ^ " │         │  │         │  │         │ " ^ "\n"
+      ^ " │         │  │         │  │         │ " ^ "\n" ^ " │    "
+      ^ card_to_string h ^ "   │  │    " ^ card_to_string b ^ "   │  │    "
+      ^ card_to_string c ^ "   │ " ^ "\n"
+      ^ " │         │  │         │  │         │ " ^ "\n"
+      ^ " │         │  │         │  │         │ " ^ "\n" ^ " │        "
+      ^ rank_to_string h.rank ^ "│  │        " ^ rank_to_string b.rank
+      ^ "│  │        " ^ rank_to_string c.rank ^ "│ " ^ "\n"
+      ^ " └─────────┘  └─────────┘  └─────────┘ "
+  | h :: b :: t ->
+      "\n" ^ " ┌─────────┐  ┌─────────┐ " ^ "\n" ^ " │" ^ rank_to_string h.rank
+      ^ "        │  │" ^ rank_to_string b.rank ^ "        │ " ^ "\n"
+      ^ " │         │  │         │ " ^ "\n" ^ " │         │  │         │ "
+      ^ "\n" ^ " │    " ^ card_to_string h ^ "   │  │    " ^ card_to_string b
+      ^ "   │ " ^ "\n" ^ " │         │  │         │ " ^ "\n"
+      ^ " │         │  │         │ " ^ "\n" ^ " │        "
+      ^ rank_to_string h.rank ^ "│  │        " ^ rank_to_string b.rank ^ "│ "
+      ^ "\n" ^ " └─────────┘  └─────────┘ "
+  | h :: t -> ""
 
 let player_to_string player =
   if List.length player.hand > 0 then
@@ -165,6 +224,6 @@ let player_to_string player =
 let revealed_player_to_string player =
   player.name ^ ":"
   ^ cards_to_string player.hand
-  ^ " "
+  ^ "\n          "
   ^ string_of_int player.balance
   ^ " Chips"

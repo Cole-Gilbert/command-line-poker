@@ -254,14 +254,29 @@ let rec players_to_string players =
 let rec repeat_string n str =
   if n <= 0 then "" else str ^ repeat_string (n - 1) str
 
-let unknown_cards_to_string (board : card list) =
+let top_of_card (board : card list) =
   let n = 5 - List.length board in
-  repeat_string n " __"
+  repeat_string n " ┌─────────┐ "
+
+let bottom_of_card (board : card list) =
+  let n = 5 - List.length board in
+  repeat_string n " └─────────┘ "
+
+let middle_of_card (board : card list) =
+  let n = 5 - List.length board in
+  repeat_string n " │░░░░░░░░░│ "
+
+let unknown_cards_to_string (board : card list) =
+  "\n" ^ top_of_card board ^ "\n" ^ middle_of_card board ^ "\n"
+  ^ middle_of_card board ^ "\n" ^ middle_of_card board ^ "\n"
+  ^ middle_of_card board ^ "\n" ^ middle_of_card board ^ "\n"
+  ^ middle_of_card board ^ "\n" ^ middle_of_card board ^ "\n"
+  ^ bottom_of_card board
 
 let state_to_string st =
   "TABLE:\n"
   ^ players_to_string st.players
-  ^ "Pot: " ^ string_of_int st.pot ^ " Chips\n" ^ "Board:"
+  ^ "Pot: " ^ string_of_int st.pot ^ " Chips\n" ^ "Board:" ^ "\n"
   ^ Holdem.cards_to_string st.board
   ^ unknown_cards_to_string st.board
   ^ "\n\n"
