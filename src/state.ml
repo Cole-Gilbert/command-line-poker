@@ -276,7 +276,7 @@ let unknown_cards_to_string (board : card list) =
 let state_to_string st =
   "TABLE:\n"
   ^ players_to_string st.players
-  ^ "Pot: " ^ string_of_int st.pot ^ " Chips\n" ^ "Board:" ^ "\n"
+  ^ "Pot: " ^ string_of_int st.pot ^ " Chips\n" ^ "Board:"
   ^ Holdem.cards_to_string st.board
   ^ unknown_cards_to_string st.board
   ^ "\n\n"
