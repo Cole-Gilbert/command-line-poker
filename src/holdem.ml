@@ -149,10 +149,10 @@ let rank_to_string rank =
 
 let card_to_string card =
   match card.suit with
-  | Spades -> rank_to_string card.rank ^ "♠"
-  | Hearts -> rank_to_string card.rank ^ "♥"
-  | Diamonds -> rank_to_string card.rank ^ "♦"
-  | Clubs -> rank_to_string card.rank ^ "♣"
+  | Spades -> "♠"
+  | Hearts -> "♥"
+  | Diamonds -> "♦"
+  | Clubs -> "♣"
 
 let rec cards_to_string (deck : card list) =
   match deck with
@@ -166,9 +166,9 @@ let rec cards_to_string (deck : card list) =
       ^ " │         │  │         │  │         │  │         │  │         │ "
       ^ "\n"
       ^ " │         │  │         │  │         │  │         │  │         │ "
-      ^ "\n" ^ " │    " ^ card_to_string h ^ "   │  │    " ^ card_to_string b
-      ^ "   │  │    " ^ card_to_string c ^ "   │  │    " ^ card_to_string d
-      ^ "   │  │    " ^ card_to_string e ^ "   │ " ^ "\n"
+      ^ "\n" ^ " │    " ^ card_to_string h ^ "    │  │    " ^ card_to_string b
+      ^ "    │  │    " ^ card_to_string c ^ "    │  │    " ^ card_to_string d
+      ^ "    │  │    " ^ card_to_string e ^ "    │ " ^ "\n"
       ^ " │         │  │         │  │         │  │         │  │         │ "
       ^ "\n"
       ^ " │         │  │         │  │         │  │         │  │         │ "
@@ -186,9 +186,9 @@ let rec cards_to_string (deck : card list) =
       ^ " │         │  │         │  │         │  │         │  │░░░░░░░░░│ "
       ^ "\n"
       ^ " │         │  │         │  │         │  │         │  │░░░░░░░░░│ "
-      ^ "\n" ^ " │    " ^ card_to_string h ^ "   │  │    " ^ card_to_string b
-      ^ "   │  │    " ^ card_to_string c ^ "   │  │    " ^ card_to_string d
-      ^ "   │  │░░░░░░░░░│ " ^ "\n"
+      ^ "\n" ^ " │    " ^ card_to_string h ^ "    │  │    " ^ card_to_string b
+      ^ "    │  │    " ^ card_to_string c ^ "    │  │    " ^ card_to_string d
+      ^ "    │  │░░░░░░░░░│ " ^ "\n"
       ^ " │         │  │         │  │         │  │         │  │░░░░░░░░░│ "
       ^ "\n"
       ^ " │         │  │         │  │         │  │         │  │░░░░░░░░░│ "
@@ -204,8 +204,8 @@ let rec cards_to_string (deck : card list) =
       ^ " │         │  │         │  │         │  │░░░░░░░░░│  │░░░░░░░░░│ "
       ^ "\n"
       ^ " │         │  │         │  │         │  │░░░░░░░░░│  │░░░░░░░░░│ "
-      ^ "\n" ^ " │    " ^ card_to_string h ^ "   │  │    " ^ card_to_string b
-      ^ "   │  │    " ^ card_to_string c ^ "   │  │░░░░░░░░░│  │░░░░░░░░░│ "
+      ^ "\n" ^ " │    " ^ card_to_string h ^ "    │  │    " ^ card_to_string b
+      ^ "    │  │    " ^ card_to_string c ^ "    │  │░░░░░░░░░│  │░░░░░░░░░│ "
       ^ "\n"
       ^ " │         │  │         │  │         │  │░░░░░░░░░│  │░░░░░░░░░│ "
       ^ "\n"
@@ -218,8 +218,8 @@ let rec cards_to_string (deck : card list) =
       "\n" ^ " ┌─────────┐  ┌─────────┐ " ^ "\n" ^ " │" ^ rank_to_string h.rank
       ^ "        │  │" ^ rank_to_string b.rank ^ "        │ " ^ "\n"
       ^ " │         │  │         │ " ^ "\n" ^ " │         │  │         │ "
-      ^ "\n" ^ " │    " ^ card_to_string h ^ "   │  │    " ^ card_to_string b
-      ^ "   │ " ^ "\n" ^ " │         │  │         │ " ^ "\n"
+      ^ "\n" ^ " │    " ^ card_to_string h ^ "    │  │    " ^ card_to_string b
+      ^ "    │ " ^ "\n" ^ " │         │  │         │ " ^ "\n"
       ^ " │         │  │         │ " ^ "\n" ^ " │        "
       ^ rank_to_string h.rank ^ "│  │        " ^ rank_to_string b.rank ^ "│ "
       ^ "\n" ^ " └─────────┘  └─────────┘ "
