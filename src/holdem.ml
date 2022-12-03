@@ -178,33 +178,42 @@ let rec cards_to_string (deck : card list) =
       ^ rank_to_string e.rank ^ "│ " ^ "\n"
       ^ " └─────────┘  └─────────┘  └─────────┘  └─────────┘  └─────────┘ "
   | h :: b :: c :: d :: t ->
-      "\n" ^ " ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐ " ^ "\n"
-      ^ " │" ^ rank_to_string h.rank ^ "        │  │" ^ rank_to_string b.rank
-      ^ "        │  │" ^ rank_to_string c.rank ^ "        │  │"
-      ^ rank_to_string d.rank ^ "        │  " ^ "\n"
-      ^ " │         │  │         │  │         │  │         │ " ^ "\n"
-      ^ " │         │  │         │  │         │  │         │ " ^ "\n" ^ " │    "
-      ^ card_to_string h ^ "   │  │    " ^ card_to_string b ^ "   │  │    "
-      ^ card_to_string c ^ "   │  │    " ^ card_to_string d ^ "   │ " ^ "\n"
-      ^ " │         │  │         │  │         │  │         │ " ^ "\n"
-      ^ " │         │  │         │  │         │  │         │ " ^ "\n"
-      ^ " │        " ^ rank_to_string h.rank ^ "│  │        "
+      "\n" ^ " ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐ "
+      ^ "\n" ^ " │" ^ rank_to_string h.rank ^ "        │  │"
+      ^ rank_to_string b.rank ^ "        │  │" ^ rank_to_string c.rank
+      ^ "        │  │" ^ rank_to_string d.rank ^ "        │  │░░░░░░░░░│ "
+      ^ "\n"
+      ^ " │         │  │         │  │         │  │         │  │░░░░░░░░░│ "
+      ^ "\n"
+      ^ " │         │  │         │  │         │  │         │  │░░░░░░░░░│ "
+      ^ "\n" ^ " │    " ^ card_to_string h ^ "   │  │    " ^ card_to_string b
+      ^ "   │  │    " ^ card_to_string c ^ "   │  │    " ^ card_to_string d
+      ^ "   │  │░░░░░░░░░│ " ^ "\n"
+      ^ " │         │  │         │  │         │  │         │  │░░░░░░░░░│ "
+      ^ "\n"
+      ^ " │         │  │         │  │         │  │         │  │░░░░░░░░░│ "
+      ^ "\n" ^ " │        " ^ rank_to_string h.rank ^ "│  │        "
       ^ rank_to_string b.rank ^ "│  │        " ^ rank_to_string c.rank
-      ^ "│  │        " ^ rank_to_string d.rank ^ "│ " ^ "\n"
-      ^ " └─────────┘  └─────────┘  └─────────┘  └─────────┘ "
+      ^ "│  │        " ^ rank_to_string d.rank ^ "│  │░░░░░░░░░│ " ^ "\n"
+      ^ " └─────────┘  └─────────┘  └─────────┘  └─────────┘  └─────────┘ "
   | h :: b :: c :: t ->
-      "\n" ^ " ┌─────────┐  ┌─────────┐  ┌─────────┐ " ^ "\n" ^ " │"
-      ^ rank_to_string h.rank ^ "        │  │" ^ rank_to_string b.rank
-      ^ "        │  │" ^ rank_to_string c.rank ^ "        │  " ^ "\n"
-      ^ " │         │  │         │  │         │ " ^ "\n"
-      ^ " │         │  │         │  │         │ " ^ "\n" ^ " │    "
-      ^ card_to_string h ^ "   │  │    " ^ card_to_string b ^ "   │  │    "
-      ^ card_to_string c ^ "   │ " ^ "\n"
-      ^ " │         │  │         │  │         │ " ^ "\n"
-      ^ " │         │  │         │  │         │ " ^ "\n" ^ " │        "
-      ^ rank_to_string h.rank ^ "│  │        " ^ rank_to_string b.rank
-      ^ "│  │        " ^ rank_to_string c.rank ^ "│ " ^ "\n"
-      ^ " └─────────┘  └─────────┘  └─────────┘ "
+      "\n" ^ " ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐ "
+      ^ "\n" ^ " │" ^ rank_to_string h.rank ^ "        │  │"
+      ^ rank_to_string b.rank ^ "        │  │" ^ rank_to_string c.rank
+      ^ "        │  │░░░░░░░░░│  │░░░░░░░░░│ " ^ "\n"
+      ^ " │         │  │         │  │         │  │░░░░░░░░░│  │░░░░░░░░░│ "
+      ^ "\n"
+      ^ " │         │  │         │  │         │  │░░░░░░░░░│  │░░░░░░░░░│ "
+      ^ "\n" ^ " │    " ^ card_to_string h ^ "   │  │    " ^ card_to_string b
+      ^ "   │  │    " ^ card_to_string c ^ "   │  │░░░░░░░░░│  │░░░░░░░░░│ "
+      ^ "\n"
+      ^ " │         │  │         │  │         │  │░░░░░░░░░│  │░░░░░░░░░│ "
+      ^ "\n"
+      ^ " │         │  │         │  │         │  │░░░░░░░░░│  │░░░░░░░░░│ "
+      ^ "\n" ^ " │        " ^ rank_to_string h.rank ^ "│  │        "
+      ^ rank_to_string b.rank ^ "│  │        " ^ rank_to_string c.rank
+      ^ "│  │░░░░░░░░░│  │░░░░░░░░░│ " ^ "\n"
+      ^ " └─────────┘  └─────────┘  └─────────┘  └─────────┘  └─────────┘ "
   | h :: b :: t ->
       "\n" ^ " ┌─────────┐  ┌─────────┐ " ^ "\n" ^ " │" ^ rank_to_string h.rank
       ^ "        │  │" ^ rank_to_string b.rank ^ "        │ " ^ "\n"
