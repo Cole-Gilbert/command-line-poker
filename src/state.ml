@@ -277,14 +277,26 @@ let state_to_string st =
   "TABLE:\n"
   ^ players_to_string st.players
   ^ "Pot: " ^ string_of_int st.pot ^ " Chips\n" ^ "Board:"
-  ^ Holdem.cards_to_string st.board
-  ^ unknown_cards_to_string st.board
-  ^ "\n\n"
   ^
-  if st.active then
-    let player = current_player st in
-    if st.confirmed then revealed_player_to_string player
-    else
-      Holdem.player_to_string player
-      ^ ", are you ready? Press enter to start your turn."
-  else "You can add/remove players or deal cards"
+  if String.equal (Holdem.cards_to_string st.board) "" then
+    unknown_cards_to_string st.board
+    ^ "\n\n"
+    ^
+    if st.active then
+      let player = current_player st in
+      if st.confirmed then revealed_player_to_string player
+      else
+        Holdem.player_to_string player
+        ^ ", are you ready? Press enter to start your turn."
+    else "You can add/remove players or deal cards"
+  else
+    Holdem.cards_to_string st.board
+    ^ "\n\n"
+    ^
+    if st.active then
+      let player = current_player st in
+      if st.confirmed then revealed_player_to_string player
+      else
+        Holdem.player_to_string player
+        ^ ", are you ready? Press enter to start your turn."
+    else "You can add/remove players or deal cards"
