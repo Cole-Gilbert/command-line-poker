@@ -31,7 +31,7 @@ let init buy_in =
 
 let comfirm st =
   if (not st.active) || st.confirmed then
-    Illegal "Error: Please Enter a Command\n"
+    Illegal "Error: Please Enter a Command!\n"
   else
     Legal
       {
@@ -50,10 +50,11 @@ let equals p1 p2 = p1.name = p2.name
 
 let update_pos st =
   let len = List.length st.players in
-  let pos = ref (1 + (st.position mod len)) in
+  let pos = ref ((1 + st.position) mod len) in
   let () =
-    while not (List.nth st.players (!pos mod len)).active do
-      pos := !pos + 1
+    while not (List.nth st.players !pos).active do
+      let new_pos = (!pos + 1) mod len in
+      pos := new_pos
     done
   in
   !pos
@@ -87,12 +88,15 @@ let deal_to_player p st =
   let card2 = Holdem.top_card deck1 in
   let pot = ref st.pot in
   let player =
-    if small_blind_player st |> equals p then
-      let () = pot := !pot + (st.min_bet / 2) in
-      Holdem.pay_amount (st.min_bet / 2) p
+    if p.balance < st.buy_in / 200 then
+      let () = pot := !pot + p.balance in
+      Holdem.pay_amount p.balance p
+    else if small_blind_player st |> equals p then
+      let () = pot := !pot + (st.buy_in / 200) in
+      Holdem.pay_amount (st.buy_in / 200) p
     else if big_blind_player st |> equals p then
-      let () = pot := !pot + st.min_bet in
-      Holdem.pay_amount st.min_bet p
+      let () = pot := !pot + (st.buy_in / 100) in
+      Holdem.pay_amount (st.buy_in / 100) p
     else p
   in
   let players =
@@ -113,9 +117,9 @@ let deal_to_player p st =
 let find_winners = Illegal "unimplemented"
 
 let deal st =
-  if st.active then Illegal "Error: The cards have already been dealt\n"
+  if st.active then Illegal "Error: The cards have already been dealt!\n"
   else if List.length st.players < 2 then
-    Illegal "Error: There must be at least 2 players to start playing\n"
+    Illegal "Error: There must be at least 2 players to start playing!\n"
   else Legal (List.fold_left (fun st p -> deal_to_player p st) st st.players)
 
 let deal_to_board st =
@@ -134,28 +138,125 @@ let deal_to_board st =
 
 let deal_flop st = st |> deal_to_board |> deal_to_board |> deal_to_board
 
+let rec active_player_count (players : player list) =
+  match players with
+  | [] -> 0
+  | h :: t ->
+      if h.active then 1 + active_player_count t else active_player_count t
+
 let call st =
-  if not st.active then Illegal "Error: The cards have not been dealt yet\n"
-  else if not st.confirmed then Illegal "Error: Please confirm your turn\n"
+  if not st.active then Illegal "Error: The cards have not been dealt yet!\n"
+  else if not st.confirmed then Illegal "Error: Please confirm your turn!\n"
   else
     let player = current_player st in
-    let players = player |> Holdem.pay_amount st.min_bet |> update_players st in
-    if last_player st |> equals player then
+    if st.min_bet - player.betting = 0 then
+      Illegal "Error: Cannot call when no one has bet!\n"
+    else
+      let players =
+        player
+        |> Holdem.pay_amount (st.min_bet - player.betting)
+        |> update_players st
+      in
+      if last_player st |> equals player then
+        let len = List.length st.board in
+        if len = 5 then find_winners
+        else
+          let state = if len = 0 then deal_flop st else deal_to_board st in
+          Legal
+            {
+              deck = state.deck;
+              players;
+              pot = st.pot + st.min_bet - player.betting;
+              buy_in = st.buy_in;
+              board = state.board;
+              active = st.active;
+              position = update_pos st;
+              min_bet = st.min_bet;
+              confirmed = false;
+            }
+      else
+        Legal
+          {
+            deck = st.deck;
+            players;
+            pot = st.pot + st.min_bet - player.betting;
+            buy_in = st.buy_in;
+            board = st.board;
+            active = st.active;
+            position = update_pos st;
+            min_bet = st.min_bet;
+            confirmed = false;
+          }
+
+let check st =
+  if not st.active then Illegal "Error: The cards have not been dealt yet!\n"
+  else if not st.confirmed then Illegal "Error: Please confirm your turn!\n"
+  else
+    let player = current_player st in
+    if st.min_bet - player.betting > 0 then
+      Illegal "Error: You cannot check here!\n"
+    else if last_player st |> equals player then
       let len = List.length st.board in
       if len = 5 then find_winners
       else
-        let min_bet = 0 in
         let state = if len = 0 then deal_flop st else deal_to_board st in
         Legal
           {
             deck = state.deck;
-            players;
+            players = st.players;
+            pot = st.pot;
+            buy_in = st.buy_in;
+            board = state.board;
+            active = st.active;
+            position = update_pos st;
+            min_bet = st.min_bet;
+            confirmed = false;
+          }
+    else
+      Legal
+        {
+          deck = st.deck;
+          players = st.players;
+          pot = st.pot;
+          buy_in = st.buy_in;
+          board = st.board;
+          active = st.active;
+          position = update_pos st;
+          min_bet = st.min_bet;
+          confirmed = false;
+        }
+
+let fold st =
+  if not st.active then Illegal "Error: The cards have not been dealt yet!\n"
+  else if not st.confirmed then Illegal "Error: Please confirm your turn!\n"
+  else
+    let p = current_player st in
+    let player =
+      {
+        name = p.name;
+        balance = p.balance;
+        betting = p.betting;
+        active = false;
+        hand = p.hand;
+      }
+    in
+    let players = update_players st player in
+    if active_player_count players = 1 then find_winners
+    else if last_player st |> equals player then
+      let len = List.length st.board in
+      if len = 5 then find_winners
+      else
+        let state = if len = 0 then deal_flop st else deal_to_board st in
+        Legal
+          {
+            deck = state.deck;
+            players = st.players;
             pot = st.pot + st.min_bet;
             buy_in = st.buy_in;
             board = state.board;
             active = st.active;
             position = update_pos st;
-            min_bet;
+            min_bet = st.min_bet;
             confirmed = false;
           }
     else
@@ -172,20 +273,41 @@ let call st =
           confirmed = false;
         }
 
-let check st =
-  if not st.active then Illegal "Error: The cards have not been dealt yet\n"
-  else Illegal "Error: Unimplemented\n"
-
-let fold st =
-  if not st.active then Illegal "Error: The cards have not been dealt yet\n"
-  else Illegal "Error: Unimplemented\n"
-
-let raise st =
-  if not st.active then Illegal "Error: The cards have not been dealt yet\n"
-  else Illegal "Error: Unimplemented\n"
+let raise st i =
+  if not st.active then Illegal "Error: The cards have not been dealt yet!\n"
+  else if not st.confirmed then Illegal "Error: Please confirm your turn!\n"
+  else if i < st.min_bet || i < st.buy_in / 100 then
+    Illegal "Error: You are raising by an amount that is too small!\n"
+  else
+    let p = current_player st in
+    if i > p.balance then
+      Illegal "Error: You do not have enough to raise by that amount!"
+    else
+      let player =
+        {
+          name = p.name;
+          balance = p.balance - i;
+          betting = p.betting + i;
+          active = p.active;
+          hand = p.hand;
+        }
+      in
+      let players = update_players st player in
+      Legal
+        {
+          deck = st.deck;
+          players;
+          pot = st.pot + i;
+          buy_in = st.buy_in;
+          board = st.board;
+          active = st.active;
+          position = update_pos st;
+          min_bet = st.min_bet + i;
+          confirmed = false;
+        }
 
 let add name st =
-  if st.active then Illegal "Error: Players cannot be added mid-round\n"
+  if st.active then Illegal "Error: Players cannot be added mid-round!\n"
   else if List.exists (fun p -> p.name = name) st.players then
     Illegal "Error: Name already being used!\n"
   else
@@ -204,7 +326,7 @@ let add name st =
       }
 
 let remove name st =
-  if st.active then Illegal "Error: Players cannot be added mid-round\n"
+  if st.active then Illegal "Error: Players cannot be added mid-round!\n"
   else if List.exists (fun p -> p.name = name) st.players then
     Legal
       {
@@ -227,7 +349,7 @@ let action cmd (st : t) : result =
   | Command.Call -> call st
   | Command.Check -> check st
   | Command.Fold -> fold st
-  | Command.Raise i -> raise st
+  | Command.Raise i -> raise st i
   | Command.AddPlayer name -> add name st
   | Command.RemovePlayer name -> remove name st
 
