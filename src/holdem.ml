@@ -115,6 +115,7 @@ let swap i j arr =
 (**[shuffle deck] modifies the card array [deck] by randomizing the locations of
    the cards in the original card aray [deck]. Requires: [deck] has size 52.*)
 let shuffle deck =
+  Random.self_init ();
   for index = 51 downto 1 do
     let random_index = Random.int (index + 1) in
     swap index random_index deck
@@ -155,14 +156,27 @@ let card_to_string card =
   | Clubs -> "♣"
 
 let rec cards_to_string (deck : card list) =
+  let generate_rank_string_left rank =
+    if rank = 10 then rank_to_string rank else rank_to_string rank ^ " "
+  in
+  let generate_rank_string_right rank =
+    if rank = 10 then rank_to_string rank else " " ^ rank_to_string rank
+  in
   match deck with
   | [] -> ""
   | h :: b :: c :: d :: e :: t ->
       "\n" ^ " ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐"
-      ^ "\n" ^ " │" ^ rank_to_string h.rank ^ "        │  │"
-      ^ rank_to_string b.rank ^ "        │  │" ^ rank_to_string c.rank
-      ^ "        │  │" ^ rank_to_string d.rank ^ "        │  │"
-      ^ rank_to_string e.rank ^ "        │  " ^ "\n"
+      ^ "\n" ^ " │"
+      ^ generate_rank_string_left h.rank
+      ^ "       │  │"
+      ^ generate_rank_string_left b.rank
+      ^ "       │  │"
+      ^ generate_rank_string_left c.rank
+      ^ "       │  │"
+      ^ generate_rank_string_left d.rank
+      ^ "       │  │"
+      ^ generate_rank_string_left e.rank
+      ^ "       │  " ^ "\n"
       ^ " │         │  │         │  │         │  │         │  │         │ "
       ^ "\n"
       ^ " │         │  │         │  │         │  │         │  │         │ "
@@ -172,17 +186,29 @@ let rec cards_to_string (deck : card list) =
       ^ " │         │  │         │  │         │  │         │  │         │ "
       ^ "\n"
       ^ " │         │  │         │  │         │  │         │  │         │ "
-      ^ "\n" ^ " │        " ^ rank_to_string h.rank ^ "│  │        "
-      ^ rank_to_string b.rank ^ "│  │        " ^ rank_to_string c.rank
-      ^ "│  │        " ^ rank_to_string d.rank ^ "│  │        "
-      ^ rank_to_string e.rank ^ "│ " ^ "\n"
+      ^ "\n" ^ " │       "
+      ^ generate_rank_string_right h.rank
+      ^ "│  │       "
+      ^ generate_rank_string_right b.rank
+      ^ "│  │       "
+      ^ generate_rank_string_right c.rank
+      ^ "│  │       "
+      ^ generate_rank_string_right d.rank
+      ^ "│  │       "
+      ^ generate_rank_string_right e.rank
+      ^ "│ " ^ "\n"
       ^ " └─────────┘  └─────────┘  └─────────┘  └─────────┘  └─────────┘ "
   | h :: b :: c :: d :: t ->
       "\n" ^ " ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐ "
-      ^ "\n" ^ " │" ^ rank_to_string h.rank ^ "        │  │"
-      ^ rank_to_string b.rank ^ "        │  │" ^ rank_to_string c.rank
-      ^ "        │  │" ^ rank_to_string d.rank ^ "        │  │░░░░░░░░░│ "
-      ^ "\n"
+      ^ "\n" ^ " │"
+      ^ generate_rank_string_left h.rank
+      ^ "       │  │"
+      ^ generate_rank_string_left b.rank
+      ^ "       │  │"
+      ^ generate_rank_string_left c.rank
+      ^ "       │  │"
+      ^ generate_rank_string_left d.rank
+      ^ "       │  │░░░░░░░░░│ " ^ "\n"
       ^ " │         │  │         │  │         │  │         │  │░░░░░░░░░│ "
       ^ "\n"
       ^ " │         │  │         │  │         │  │         │  │░░░░░░░░░│ "
@@ -192,15 +218,25 @@ let rec cards_to_string (deck : card list) =
       ^ " │         │  │         │  │         │  │         │  │░░░░░░░░░│ "
       ^ "\n"
       ^ " │         │  │         │  │         │  │         │  │░░░░░░░░░│ "
-      ^ "\n" ^ " │        " ^ rank_to_string h.rank ^ "│  │        "
-      ^ rank_to_string b.rank ^ "│  │        " ^ rank_to_string c.rank
-      ^ "│  │        " ^ rank_to_string d.rank ^ "│  │░░░░░░░░░│ " ^ "\n"
+      ^ "\n" ^ " │       "
+      ^ generate_rank_string_right h.rank
+      ^ "│  │       "
+      ^ generate_rank_string_right b.rank
+      ^ "│  │       "
+      ^ generate_rank_string_right c.rank
+      ^ "│  │       "
+      ^ generate_rank_string_right d.rank
+      ^ "│  │░░░░░░░░░│ " ^ "\n"
       ^ " └─────────┘  └─────────┘  └─────────┘  └─────────┘  └─────────┘ "
   | h :: b :: c :: t ->
       "\n" ^ " ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐ "
-      ^ "\n" ^ " │" ^ rank_to_string h.rank ^ "        │  │"
-      ^ rank_to_string b.rank ^ "        │  │" ^ rank_to_string c.rank
-      ^ "        │  │░░░░░░░░░│  │░░░░░░░░░│ " ^ "\n"
+      ^ "\n" ^ " │"
+      ^ generate_rank_string_left h.rank
+      ^ "       │  │"
+      ^ generate_rank_string_left b.rank
+      ^ "       │  │"
+      ^ generate_rank_string_left c.rank
+      ^ "       │  │░░░░░░░░░│  │░░░░░░░░░│ " ^ "\n"
       ^ " │         │  │         │  │         │  │░░░░░░░░░│  │░░░░░░░░░│ "
       ^ "\n"
       ^ " │         │  │         │  │         │  │░░░░░░░░░│  │░░░░░░░░░│ "
@@ -210,19 +246,28 @@ let rec cards_to_string (deck : card list) =
       ^ " │         │  │         │  │         │  │░░░░░░░░░│  │░░░░░░░░░│ "
       ^ "\n"
       ^ " │         │  │         │  │         │  │░░░░░░░░░│  │░░░░░░░░░│ "
-      ^ "\n" ^ " │        " ^ rank_to_string h.rank ^ "│  │        "
-      ^ rank_to_string b.rank ^ "│  │        " ^ rank_to_string c.rank
+      ^ "\n" ^ " │       "
+      ^ generate_rank_string_right h.rank
+      ^ "│  │       "
+      ^ generate_rank_string_right b.rank
+      ^ "│  │       "
+      ^ generate_rank_string_right c.rank
       ^ "│  │░░░░░░░░░│  │░░░░░░░░░│ " ^ "\n"
       ^ " └─────────┘  └─────────┘  └─────────┘  └─────────┘  └─────────┘ "
   | h :: b :: t ->
-      "\n" ^ " ┌─────────┐  ┌─────────┐ " ^ "\n" ^ " │" ^ rank_to_string h.rank
-      ^ "        │  │" ^ rank_to_string b.rank ^ "        │ " ^ "\n"
+      "\n" ^ " ┌─────────┐  ┌─────────┐ " ^ "\n" ^ " │"
+      ^ generate_rank_string_left h.rank
+      ^ "       │  │"
+      ^ generate_rank_string_left b.rank
+      ^ "       │ " ^ "\n" ^ " │         │  │         │ " ^ "\n"
+      ^ " │         │  │         │ " ^ "\n" ^ " │    " ^ card_to_string h
+      ^ "    │  │    " ^ card_to_string b ^ "    │ " ^ "\n"
       ^ " │         │  │         │ " ^ "\n" ^ " │         │  │         │ "
-      ^ "\n" ^ " │    " ^ card_to_string h ^ "    │  │    " ^ card_to_string b
-      ^ "    │ " ^ "\n" ^ " │         │  │         │ " ^ "\n"
-      ^ " │         │  │         │ " ^ "\n" ^ " │        "
-      ^ rank_to_string h.rank ^ "│  │        " ^ rank_to_string b.rank ^ "│ "
-      ^ "\n" ^ " └─────────┘  └─────────┘ "
+      ^ "\n" ^ " │       "
+      ^ generate_rank_string_right h.rank
+      ^ "│  │       "
+      ^ generate_rank_string_right b.rank
+      ^ "│ " ^ "\n" ^ " └─────────┘  └─────────┘ "
   | h :: t -> ""
 
 let player_to_string player =

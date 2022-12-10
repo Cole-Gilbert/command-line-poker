@@ -40,17 +40,30 @@ let quit_test (name : string) (st : State.t) (expected_output : string) : test =
 let state_to_string_test (name : string) (st : State.t)
     (expected_output : string) : test =
   (*let () = print_string ("\n" ^ state_to_string st ^ "\n") in*)
-  name >:: fun _ -> assert_equal expected_output (state_to_string st)
+  name >:: fun _ ->
+  assert_equal expected_output (state_to_string st) ~printer:(fun s -> s)
+
+let state_test_str =
+  {|TABLE:
+No current players
+Pot: 0 Chips
+Board:
+ ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐ 
+ │░░░░░░░░░│  │░░░░░░░░░│  │░░░░░░░░░│  │░░░░░░░░░│  │░░░░░░░░░│ 
+ │░░░░░░░░░│  │░░░░░░░░░│  │░░░░░░░░░│  │░░░░░░░░░│  │░░░░░░░░░│ 
+ │░░░░░░░░░│  │░░░░░░░░░│  │░░░░░░░░░│  │░░░░░░░░░│  │░░░░░░░░░│ 
+ │░░░░░░░░░│  │░░░░░░░░░│  │░░░░░░░░░│  │░░░░░░░░░│  │░░░░░░░░░│ 
+ │░░░░░░░░░│  │░░░░░░░░░│  │░░░░░░░░░│  │░░░░░░░░░│  │░░░░░░░░░│ 
+ │░░░░░░░░░│  │░░░░░░░░░│  │░░░░░░░░░│  │░░░░░░░░░│  │░░░░░░░░░│ 
+ │░░░░░░░░░│  │░░░░░░░░░│  │░░░░░░░░░│  │░░░░░░░░░│  │░░░░░░░░░│ 
+ └─────────┘  └─────────┘  └─────────┘  └─────────┘  └─────────┘ 
+
+You can add/remove players or deal cards|}
 
 let state_tests =
   let state = init 50 in
   [
-    state_to_string_test "State to string using init state" state
-      "TABLE:\n\
-       No current players\n\
-       Pot: 0 Chips\n\
-       Board: __ __ __ __ __\n\n\
-       You can add/remove players or deal cards";
+    state_to_string_test "State to string using init state" state state_test_str;
     quit_test "Quits using init state" state " won with an amount of 0.\n\n";
   ]
 (******************************************************************
@@ -203,6 +216,48 @@ let showdown_tests =
         make_player "p2" [ ("H", 9); ("C", 5) ];
       ]
       [ "p1" ];
+    showdown_test "High Cards"
+      (make_board [ ("D", 12); ("D", 5); ("C", 11); ("H", 4); ("S", 2) ])
+      [
+        make_player "p1" [ ("H", 14); ("S", 3) ];
+        make_player "p2" [ ("H", 13); ("C", 3) ];
+      ]
+      [ "p1" ];
+    showdown_test "High Card vs Pair"
+      (make_board [ ("D", 12); ("D", 6); ("H", 7); ("C", 4); ("S", 2) ])
+      [
+        make_player "p1" [ ("H", 14); ("S", 3) ];
+        make_player "p2" [ ("H", 12); ("C", 3) ];
+      ]
+      [ "p2" ];
+    showdown_test "Pair vs Pair"
+      (make_board [ ("D", 12); ("D", 6); ("H", 7); ("C", 4); ("S", 2) ])
+      [
+        make_player "p1" [ ("D", 7); ("S", 3) ];
+        make_player "p2" [ ("H", 12); ("C", 3) ];
+      ]
+      [ "p2" ];
+    showdown_test "Pair vs Pair Kicker Tied"
+      (make_board [ ("D", 12); ("D", 6); ("H", 7); ("C", 4); ("S", 2) ])
+      [
+        make_player "p1" [ ("S", 12); ("S", 3) ];
+        make_player "p2" [ ("H", 12); ("C", 3) ];
+      ]
+      [ "p1"; "p2" ];
+    showdown_test "Pair vs Pair Kicker 1"
+      (make_board [ ("D", 12); ("D", 6); ("H", 7); ("C", 4); ("S", 2) ])
+      [
+        make_player "p1" [ ("S", 12); ("S", 13) ];
+        make_player "p2" [ ("H", 12); ("C", 3) ];
+      ]
+      [ "p1" ];
+    showdown_test "Pair vs Pair Kicker 2"
+      (make_board [ ("H", 13); ("D", 6); ("H", 11); ("C", 4); ("S", 2) ])
+      [
+        make_player "p1" [ ("C", 13); ("S", 9) ];
+        make_player "p2" [ ("D", 13); ("C", 10) ];
+      ]
+      [ "p2" ];
   ]
 
 (******************************************************************
