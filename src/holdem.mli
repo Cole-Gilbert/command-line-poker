@@ -36,6 +36,10 @@ val deal_to : card -> player -> player
 val pay_amount : int -> player -> player
 (**[pay_amount i p] removes chips [i] from a player's [p] balance. *)
 
+val bet_amount : int -> player -> player
+(**[bet_amount i p] removes chips [i] from a player's [p] balance and adds chips
+   [i] to player's [p] betting. *)
+
 val fresh_deck : card list
 (**[fresh_deck] is a list (without duplicates) of all 52 playing cards in order.
    IE: Spades (A -> K), Hearts (A -> K), Diamonds (A -> K), Clubs (A -> K).*)

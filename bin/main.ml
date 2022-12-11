@@ -45,7 +45,7 @@ let rec buyin () =
       else i
 
 let main () =
-  ANSITerminal.print_string [ ANSITerminal.blue ]
+  ANSITerminal.print_string []
     "\n\nWelcome to Texas Hold'em! What is your buy-in?\n> ";
   State.init (buyin ()) |> game_loop
 

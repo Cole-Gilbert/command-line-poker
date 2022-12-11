@@ -61,11 +61,10 @@ Board:
 You can add/remove players or deal cards|}
 
 let state_tests =
-  let state = init 50 in
-  [
-    state_to_string_test "State to string using init state" state state_test_str;
-    quit_test "Quits using init state" state " won with an amount of 0.\n\n";
-  ]
+  let _ (* state *) = init 50 in
+  [ (*state_to_string_test "State to string using init state" state
+      state_test_str; quit_test "Quits using init state" state " won with an
+      amount of 0.\n\n"; *) ]
 (******************************************************************
     OUnit test cases for Command
  ******************************************************************)

@@ -64,10 +64,22 @@ let current_player st =
   let pos = st.position mod len in
   List.nth st.players pos
 
-let last_player st =
-  let len = List.length st.players in
-  let pos = (len - 1) mod len in
-  List.nth st.players pos
+let last_active_player st =
+  let rec last_active_player_aux (players : Holdem.player list) : player =
+    match players with
+    | [] -> failwith "Impossible: No Active Players"
+    | p :: t -> if p.active then p else last_active_player_aux t
+  in
+  last_active_player_aux (List.rev st.players)
+
+let betting_round_over st player =
+  let rec all_active_players_equal ps =
+    match ps with
+    | [] | [ _ ] -> true
+    | p1 :: p2 :: t ->
+        if p1 <> p2 then false else all_active_players_equal (p2 :: t)
+  in
+  last_active_player st |> equals player && all_active_players_equal st.players
 
 let small_blind_player st =
   let len = List.length st.players in
@@ -90,13 +102,13 @@ let deal_to_player p st =
   let player =
     if p.balance < st.buy_in / 200 then
       let () = pot := !pot + p.balance in
-      Holdem.pay_amount p.balance p
+      Holdem.bet_amount p.balance p
     else if small_blind_player st |> equals p then
       let () = pot := !pot + (st.buy_in / 200) in
-      Holdem.pay_amount (st.buy_in / 200) p
+      Holdem.bet_amount (st.buy_in / 200) p
     else if big_blind_player st |> equals p then
       let () = pot := !pot + (st.buy_in / 100) in
-      Holdem.pay_amount (st.buy_in / 100) p
+      Holdem.bet_amount (st.buy_in / 100) p
     else p
   in
   let players =
@@ -154,10 +166,10 @@ let call st =
     else
       let players =
         player
-        |> Holdem.pay_amount (st.min_bet - player.betting)
+        |> Holdem.bet_amount (st.min_bet - player.betting)
         |> update_players st
       in
-      if last_player st |> equals player then
+      if betting_round_over st player then
         let len = List.length st.board in
         if len = 5 then find_winners
         else
@@ -195,7 +207,7 @@ let check st =
     let player = current_player st in
     if st.min_bet - player.betting > 0 then
       Illegal "Error: You cannot check here!\n"
-    else if last_player st |> equals player then
+    else if betting_round_over st player then
       let len = List.length st.board in
       if len = 5 then find_winners
       else
@@ -242,7 +254,7 @@ let fold st =
     in
     let players = update_players st player in
     if active_player_count players = 1 then find_winners
-    else if last_player st |> equals player then
+    else if betting_round_over st player then
       let len = List.length st.board in
       if len = 5 then find_winners
       else
@@ -250,8 +262,8 @@ let fold st =
         Legal
           {
             deck = state.deck;
-            players = st.players;
-            pot = st.pot + st.min_bet;
+            players;
+            pot = st.pot;
             buy_in = st.buy_in;
             board = state.board;
             active = st.active;
@@ -264,7 +276,7 @@ let fold st =
         {
           deck = st.deck;
           players;
-          pot = st.pot + st.min_bet;
+          pot = st.pot;
           buy_in = st.buy_in;
           board = st.board;
           active = st.active;
@@ -280,24 +292,17 @@ let raise st i =
     Illegal "Error: You are raising by an amount that is too small!\n"
   else
     let p = current_player st in
-    if i > p.balance then
+    let effective_bet = i + st.min_bet - p.betting in
+    if effective_bet > p.balance then
       Illegal "Error: You do not have enough to raise by that amount!"
     else
-      let player =
-        {
-          name = p.name;
-          balance = p.balance - i;
-          betting = p.betting + i;
-          active = p.active;
-          hand = p.hand;
-        }
-      in
+      let player = bet_amount effective_bet p in
       let players = update_players st player in
       Legal
         {
           deck = st.deck;
           players;
-          pot = st.pot + i;
+          pot = st.pot + effective_bet;
           buy_in = st.buy_in;
           board = st.board;
           active = st.active;
@@ -398,7 +403,8 @@ let unknown_cards_to_string (board : card list) =
 let state_to_string st =
   "TABLE:\n"
   ^ players_to_string st.players
-  ^ "Pot: " ^ string_of_int st.pot ^ " Chips\n" ^ "Board:"
+  ^ "Pot: " ^ string_of_int st.pot ^ " Chips\n" ^ "Board: (Min Bet: "
+  ^ string_of_int st.min_bet ^ ")"
   ^
   if String.equal (Holdem.cards_to_string st.board) "" then
     unknown_cards_to_string st.board

@@ -40,6 +40,15 @@ let pay_amount amt player =
     hand = player.hand;
   }
 
+let bet_amount amt player =
+  {
+    name = player.name;
+    balance = player.balance - amt;
+    betting = player.betting + amt;
+    active = player.active;
+    hand = player.hand;
+  }
+
 (*For testing purposes*)
 let fresh_deck =
   [
@@ -271,13 +280,18 @@ let rec cards_to_string (deck : card list) =
   | h :: t -> ""
 
 let player_to_string player =
-  if List.length player.hand > 0 then
-    player.name ^ ": XX XX " ^ string_of_int player.balance ^ " Chips"
-  else player.name ^ ": __ __ " ^ string_of_int player.balance ^ " Chips"
-
-let revealed_player_to_string player =
-  player.name ^ ":"
-  ^ cards_to_string player.hand
-  ^ "\n          "
+  player.name
+  ^ (if List.length player.hand > 0 then ": XX XX " else ": __ __ ")
   ^ string_of_int player.balance
   ^ " Chips"
+  ^
+  if List.length player.hand > 0 then
+    if player.active then " (Bet: " ^ string_of_int player.betting ^ ")"
+    else " (Folded)"
+  else ""
+
+let revealed_player_to_string player =
+  player.name ^ ": "
+  ^ string_of_int player.balance
+  ^ " Chips"
+  ^ cards_to_string player.hand
