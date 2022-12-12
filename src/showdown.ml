@@ -9,7 +9,7 @@ type hand =
   | StraightFlush of int
   | FourOfAKind of int
   | FullHouse of (int * int)
-  | Flush of int
+  | Flush of kickers
   | Straight of int
   | ThreeOfAKind of (int * kickers)
   | TwoPair of (int * int * kickers)
@@ -49,7 +49,7 @@ let is_flush (cards : Holdem.card list) : bool =
 let is_straight (cards : Holdem.card list) : bool =
   let rec is_rank_below (prev : int) (cards : Holdem.card list) : bool =
     match cards with
-    | h :: t -> if prev = h.rank then is_rank_below h.rank t else false
+    | h :: t -> if prev = h.rank + 1 then is_rank_below h.rank t else false
     | [] -> true
   in
   is_rank_below (List.hd cards).rank (List.tl cards)
@@ -119,15 +119,19 @@ let check_highcard (cards : Holdem.card list) : hand =
 (**[check_seq cards] is [Some hand] or None if the cards do not contain a
    straight, flush, straight flush, or royal straight. *)
 let check_seq (cards : Holdem.card list) : hand option =
+  let no_ace_hand = remove_ace cards in
   if cards |> is_flush then
-    let no_ace_hand = remove_ace cards in
     if no_ace_hand |> is_straight then
       if List.length no_ace_hand = 4 then
         if (List.hd no_ace_hand).rank = 13 then Some (RoyalFlush 14)
-        else Some (StraightFlush (List.hd cards).rank)
+        else Some (StraightFlush 5)
       else Some (StraightFlush (List.hd cards).rank)
-    else Some (Flush (List.hd cards).rank)
-  else if cards |> is_straight then Some (Straight (List.hd cards).rank)
+    else Some (Flush (to_rank_mult cards |> to_kickers))
+  else if no_ace_hand |> is_straight then
+    if List.length no_ace_hand = 4 then
+      if (List.hd no_ace_hand).rank = 13 then Some (Straight 14)
+      else Some (Straight 5)
+    else Some (Straight (List.hd cards).rank)
   else None
 
 (**[find_pair rank_mult_list] is Some [Pair (rank * kickers)] or None if
@@ -162,7 +166,8 @@ let find_two_pair (rm_list : (int * int) list) : hand option =
 let find_three_of_a_kind (rm_list : (int * int) list) : hand option =
   let three_oak_rank = find_rank_of_mult 3 rm_list in
   match three_oak_rank with
-  | Some rank -> Some (Pair (rank, remove_by_rank rank rm_list |> to_kickers))
+  | Some rank ->
+      Some (ThreeOfAKind (rank, remove_by_rank rank rm_list |> to_kickers))
   | None -> None
 
 (**[find_full_house rank_mult_list] is Some [FullHouse (rank * rank)] or None if
@@ -180,7 +185,7 @@ let find_full_house (rm_list : (int * int) list) : hand option =
 (**[find_four_of_a_kind rank_mult_list] is Some [FourOfAKind (rank)] or None if
    [rank_mult_list] doesn't contain a four of a kind.*)
 let find_four_of_a_kind (rm_list : (int * int) list) : hand option =
-  let four_oak_rank = find_rank_of_mult 2 rm_list in
+  let four_oak_rank = find_rank_of_mult 4 rm_list in
   match four_oak_rank with
   | Some rank -> Some (FourOfAKind rank)
   | None -> None
@@ -228,7 +233,7 @@ let hand_value (h : hand) : int list =
   | StraightFlush rank -> [ 8; rank ]
   | FourOfAKind rank -> [ 7; rank ]
   | FullHouse (rank1, rank2) -> [ 6; rank1; rank2 ]
-  | Flush rank -> [ 5; rank ]
+  | Flush kickers -> 5 :: kickers
   | Straight rank -> [ 4; rank ]
   | ThreeOfAKind (rank, kickers) -> 3 :: rank :: kickers
   | TwoPair (rank1, rank2, kickers) -> 2 :: rank1 :: rank2 :: kickers

@@ -201,13 +201,20 @@ let showdown_tests =
         make_player "p6" [ ("H", 2); ("H", 5) ];
       ]
       [ "p1"; "p2" ];
-    (* showdown_test "FAILING 1 - Two Players with One Winner" (make_board [
-       ("D", 12); ("D", 5); ("C", 12); ("H", 4); ("S", 2) ]) [ make_player "p1"
-       [ ("H", 6); ("S", 12) ]; make_player "p2" [ ("H", 9); ("C", 5) ]; ] [
-       "p1" ]; showdown_test "FAILING 2 - Two Players with One Winner"
-       (make_board [ ("D", 12); ("D", 5); ("C", 12); ("H", 4); ("S", 2) ]) [
-       make_player "p1" [ ("H", 12); ("S", 12) ]; make_player "p2" [ ("H", 9);
-       ("C", 5) ]; ] [ "p1" ]; *)
+    showdown_test "Two Players with One Winner (Three of a Kind)"
+      (make_board [ ("D", 12); ("D", 5); ("C", 12); ("H", 4); ("S", 2) ])
+      [
+        make_player "p1" [ ("H", 6); ("S", 12) ];
+        make_player "p2" [ ("H", 9); ("C", 5) ];
+      ]
+      [ "p1" ];
+    showdown_test "Two Players with One Winner (Four of a Kind)"
+      (make_board [ ("D", 12); ("D", 5); ("C", 12); ("H", 4); ("S", 2) ])
+      [
+        make_player "p1" [ ("H", 12); ("S", 12) ];
+        make_player "p2" [ ("H", 9); ("C", 5) ];
+      ]
+      [ "p1" ];
     showdown_test "High Cards"
       (make_board [ ("D", 12); ("D", 5); ("C", 11); ("H", 4); ("S", 2) ])
       [
@@ -327,12 +334,34 @@ let showdown_tests =
         make_player "p2" [ ("H", 2); ("D", 14) ];
       ]
       [ "p1"; "p2" ];
-    (* showdown_test "FAILING 3 - Straight vs Three of a Kind" (make_board [
-       ("D", 2); ("H", 3); ("H", 6); ("C", 2); ("H", 12) ]) [ make_player "p1" [
-       ("S", 4); ("H", 5) ]; make_player "p2" [ ("H", 2); ("D", 14) ]; ] [ "p1"
-       ]; showdown_test "FAILING 4 - Straight vs Straight" (make_board [ ("D",
-       2); ("H", 3); ("H", 5); ("C", 2); ("H", 12) ]) [ make_player "p1" [ ("S",
-       4); ("H", 6) ]; make_player "p2" [ ("H", 4); ("D", 14) ]; ] [ "p1" ]; *)
+    showdown_test "Ace Straight vs Ace Straight chop"
+      (make_board [ ("D", 2); ("H", 3); ("H", 5); ("C", 4); ("H", 12) ])
+      [
+        make_player "p1" [ ("S", 2); ("H", 14) ];
+        make_player "p2" [ ("H", 2); ("D", 14) ];
+      ]
+      [ "p1"; "p2" ];
+    showdown_test "Straight vs Pair"
+      (make_board [ ("D", 2); ("H", 3); ("H", 6); ("C", 4); ("H", 12) ])
+      [
+        make_player "p1" [ ("S", 9); ("H", 5) ];
+        make_player "p2" [ ("H", 2); ("D", 14) ];
+      ]
+      [ "p1" ];
+    showdown_test "Straight vs Three of a Kind"
+      (make_board [ ("D", 2); ("H", 3); ("H", 6); ("C", 2); ("H", 12) ])
+      [
+        make_player "p1" [ ("S", 4); ("H", 5) ];
+        make_player "p2" [ ("H", 2); ("D", 14) ];
+      ]
+      [ "p1" ];
+    showdown_test "Straight vs Higher Straight"
+      (make_board [ ("D", 2); ("H", 3); ("H", 5); ("C", 2); ("H", 12) ])
+      [
+        make_player "p1" [ ("S", 4); ("H", 6) ];
+        make_player "p2" [ ("H", 4); ("D", 14) ];
+      ]
+      [ "p1" ];
     showdown_test "Straight vs Higher Straight"
       (make_board [ ("H", 6); ("H", 7); ("H", 9); ("H", 10); ("C", 10) ])
       [
@@ -340,11 +369,18 @@ let showdown_tests =
         make_player "p2" [ ("S", 8); ("D", 11) ];
       ]
       [ "p2" ];
-    showdown_test "Flush vs Three Pair"
+    showdown_test "Flush vs Three of a Kind"
       (make_board [ ("D", 2); ("H", 8); ("H", 5); ("C", 2); ("H", 12) ])
       [
         make_player "p1" [ ("S", 4); ("H", 2) ];
         make_player "p2" [ ("H", 7); ("H", 14) ];
+      ]
+      [ "p2" ];
+    showdown_test "Straight vs Higher Straight (Ace High)"
+      (make_board [ ("H", 6); ("H", 10); ("H", 11); ("H", 12); ("C", 13) ])
+      [
+        make_player "p1" [ ("D", 9); ("D", 2) ];
+        make_player "p2" [ ("S", 8); ("D", 14) ];
       ]
       [ "p2" ];
     showdown_test "Flush vs Flush"
@@ -375,13 +411,20 @@ let showdown_tests =
         make_player "p2" [ ("H", 2); ("D", 8) ];
       ]
       [ "p1" ];
-    (* showdown_test "FAILING 5 - Four of a Kind vs Full House" (make_board [
-       ("C", 8); ("H", 8); ("H", 5); ("C", 5); ("H", 12) ]) [ make_player "p1" [
-       ("S", 8); ("C", 12) ]; make_player "p2" [ ("S", 5); ("D", 5) ]; ] [ "p2"
-       ]; showdown_test "FAILING 6 - Four of a Kind vs Four of a Kind"
-       (make_board [ ("C", 8); ("H", 8); ("H", 5); ("C", 5); ("H", 12) ]) [
-       make_player "p1" [ ("S", 8); ("D", 8) ]; make_player "p2" [ ("S", 5);
-       ("D", 5) ]; ] [ "p1" ]; *)
+    showdown_test "Four of a Kind vs Full House"
+      (make_board [ ("C", 8); ("H", 8); ("H", 5); ("C", 5); ("H", 12) ])
+      [
+        make_player "p1" [ ("S", 8); ("C", 12) ];
+        make_player "p2" [ ("S", 5); ("D", 5) ];
+      ]
+      [ "p2" ];
+    showdown_test "Four of a Kind vs Four of a Kind"
+      (make_board [ ("C", 8); ("H", 8); ("H", 5); ("C", 5); ("H", 12) ])
+      [
+        make_player "p1" [ ("S", 8); ("D", 8) ];
+        make_player "p2" [ ("S", 5); ("D", 5) ];
+      ]
+      [ "p1" ];
     showdown_test "Straight Flush vs Two Pair"
       (make_board [ ("H", 6); ("H", 7); ("H", 9); ("H", 10); ("C", 10) ])
       [
@@ -396,6 +439,13 @@ let showdown_tests =
         make_player "p2" [ ("S", 8); ("D", 11) ];
       ]
       [ "p1" ];
+    showdown_test "Straight Flush vs Higher Straight Flush"
+      (make_board [ ("H", 3); ("H", 4); ("H", 5); ("S", 10); ("C", 10) ])
+      [
+        make_player "p1" [ ("H", 14); ("H", 2) ];
+        make_player "p2" [ ("H", 6); ("H", 7) ];
+      ]
+      [ "p2" ];
     showdown_test "Royal Flush vs Straight Flush"
       (make_board [ ("D", 13); ("D", 12); ("D", 11); ("D", 10); ("C", 4) ])
       [
