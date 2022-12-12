@@ -83,12 +83,12 @@ let betting_round_over st player =
 
 let small_blind_player st =
   let len = List.length st.players in
-  let pos = (len - 1 + st.position) mod len in
+  let pos = len - 2 in
   List.nth st.players pos
 
 let big_blind_player st =
   let len = List.length st.players in
-  let pos = (len - 2 + st.position) mod len in
+  let pos = len - 1 in
   List.nth st.players pos
 
 let update_players st player =
@@ -148,7 +148,35 @@ let deal_to_board st =
     confirmed = st.confirmed;
   }
 
-let deal_flop st = st |> deal_to_board |> deal_to_board |> deal_to_board
+let update_start_pos st =
+  let st_temp =
+    {
+      deck = st.deck;
+      players = st.players;
+      pot = st.pot;
+      buy_in = st.buy_in;
+      board = st.board;
+      active = st.active;
+      position = List.length st.players - 3;
+      min_bet = st.min_bet;
+      confirmed = st.confirmed;
+    }
+  in
+  let position = update_pos st_temp in
+  {
+    deck = st.deck;
+    players = st.players;
+    pot = st.pot;
+    buy_in = st.buy_in;
+    board = st.board;
+    active = st.active;
+    position;
+    min_bet = st.min_bet;
+    confirmed = st.confirmed;
+  }
+
+let deal_flop st =
+  st |> deal_to_board |> deal_to_board |> deal_to_board |> update_start_pos
 
 let rec active_player_count (players : player list) =
   match players with
