@@ -9,6 +9,7 @@ type t = {
   active : bool;
   position : int;
   min_bet : int;
+  last_min_bet : int;
   confirmed : bool;
   round_finisher : int;
 }
@@ -27,6 +28,7 @@ let init buy_in =
     active = false;
     position = 0;
     min_bet = buy_in / 100;
+    last_min_bet = buy_in / 100;
     confirmed = false;
     round_finisher = 0;
   }
@@ -45,6 +47,7 @@ let comfirm st =
         active = st.active;
         position = st.position;
         min_bet = st.min_bet;
+        last_min_bet = st.last_min_bet;
         confirmed = true;
         round_finisher = st.round_finisher;
       }
@@ -61,28 +64,6 @@ let update_pos st =
     done
   in
   !pos
-
-let reset_finisher st =
-  let len = List.length st.players in
-  let pos = ref ((len - 3) mod len) in
-  let () =
-    while not (List.nth st.players !pos).active do
-      let new_pos = (!pos - 1) mod len in
-      pos := new_pos
-    done
-  in
-  {
-    deck = st.deck;
-    players = st.players;
-    pot = st.pot;
-    buy_in = st.buy_in;
-    board = st.board;
-    active = st.active;
-    position = st.position;
-    min_bet = st.min_bet;
-    confirmed = st.confirmed;
-    round_finisher = !pos;
-  }
 
 let current_player st =
   let len = List.length st.players in
@@ -142,6 +123,7 @@ let deal_to_player p st =
     active = true;
     position = st.position;
     min_bet = st.min_bet;
+    last_min_bet = st.last_min_bet;
     confirmed = st.confirmed;
     round_finisher = st.round_finisher;
   }
@@ -166,9 +148,33 @@ let deal st =
         active = state.active;
         position = state.position;
         min_bet = state.min_bet;
+        last_min_bet = 0;
         confirmed = state.confirmed;
         round_finisher = List.length state.players - 1;
       }
+
+let reset_finisher st =
+  let len = List.length st.players in
+  let pos = ref ((len - 3) mod len) in
+  let () =
+    while not (List.nth st.players !pos).active do
+      let new_pos = (!pos - 1) mod len in
+      pos := new_pos
+    done
+  in
+  {
+    deck = st.deck;
+    players = st.players;
+    pot = st.pot;
+    buy_in = st.buy_in;
+    board = st.board;
+    active = st.active;
+    position = st.position;
+    min_bet = st.min_bet;
+    last_min_bet = st.last_min_bet;
+    confirmed = st.confirmed;
+    round_finisher = !pos;
+  }
 
 let reset_start_pos st =
   let st_temp =
@@ -181,6 +187,7 @@ let reset_start_pos st =
       active = st.active;
       position = List.length st.players - 3;
       min_bet = st.min_bet;
+      last_min_bet = st.last_min_bet;
       confirmed = st.confirmed;
       round_finisher = st.round_finisher;
     }
@@ -195,6 +202,22 @@ let reset_start_pos st =
     active = st.active;
     position;
     min_bet = st.min_bet;
+    last_min_bet = st.last_min_bet;
+    confirmed = st.confirmed;
+    round_finisher = st.round_finisher;
+  }
+
+let update_last_min_bet st =
+  {
+    deck = st.deck;
+    players = st.players;
+    pot = st.pot;
+    buy_in = st.buy_in;
+    board = st.board;
+    active = st.active;
+    position = st.position;
+    min_bet = st.min_bet;
+    last_min_bet = st.min_bet;
     confirmed = st.confirmed;
     round_finisher = st.round_finisher;
   }
@@ -210,10 +233,11 @@ let deal_to_board st =
     active = st.active;
     position = st.position;
     min_bet = st.min_bet;
+    last_min_bet = st.last_min_bet;
     confirmed = st.confirmed;
     round_finisher = st.round_finisher;
   }
-  |> reset_finisher |> reset_start_pos
+  |> reset_finisher |> reset_start_pos |> update_last_min_bet
 
 let deal_flop st = st |> deal_to_board |> deal_to_board |> deal_to_board
 
@@ -251,6 +275,7 @@ let call st =
               active = st.active;
               position = update_pos st;
               min_bet = st.min_bet;
+              last_min_bet = st.last_min_bet;
               confirmed = false;
               round_finisher = state.round_finisher;
             }
@@ -265,6 +290,7 @@ let call st =
             active = st.active;
             position = update_pos st;
             min_bet = st.min_bet;
+            last_min_bet = st.last_min_bet;
             confirmed = false;
             round_finisher = st.round_finisher;
           }
@@ -291,6 +317,7 @@ let check st =
             active = st.active;
             position = update_pos st;
             min_bet = st.min_bet;
+            last_min_bet = st.last_min_bet;
             confirmed = false;
             round_finisher = state.round_finisher;
           }
@@ -305,6 +332,7 @@ let check st =
           active = st.active;
           position = update_pos st;
           min_bet = st.min_bet;
+          last_min_bet = st.last_min_bet;
           confirmed = false;
           round_finisher = st.round_finisher;
         }
@@ -340,6 +368,7 @@ let fold st =
             active = st.active;
             position = update_pos st;
             min_bet = st.min_bet;
+            last_min_bet = st.last_min_bet;
             confirmed = false;
             round_finisher = state.round_finisher;
           }
@@ -354,6 +383,7 @@ let fold st =
           active = st.active;
           position = update_pos st;
           min_bet = st.min_bet;
+          last_min_bet = st.last_min_bet;
           confirmed = false;
           round_finisher = st.round_finisher;
         }
@@ -393,6 +423,7 @@ let raise st i =
           active = st.active;
           position = update_pos st;
           min_bet = st.min_bet + i;
+          last_min_bet = st.last_min_bet;
           confirmed = false;
           round_finisher = !finsher_pos;
         }
@@ -413,6 +444,7 @@ let add name st =
         active = st.active;
         position = st.position;
         min_bet = st.min_bet;
+        last_min_bet = st.last_min_bet;
         confirmed = st.confirmed;
         round_finisher = st.round_finisher;
       }
@@ -430,6 +462,7 @@ let remove name st =
         active = st.active;
         position = st.position;
         min_bet = st.min_bet;
+        last_min_bet = st.last_min_bet;
         confirmed = st.confirmed;
         round_finisher = st.round_finisher;
       }
