@@ -228,14 +228,14 @@ let call st =
   else if not st.confirmed then Illegal "Error: Please confirm your turn!\n"
   else
     let player = current_player st in
-    if st.min_bet - player.betting = 0 then
+    if st.min_bet = player.betting then
       Illegal "Error: Cannot call when no one has bet!\n"
     else
-      let players =
-        player
-        |> Holdem.bet_amount (st.min_bet - player.betting)
-        |> update_players st
+      let amt =
+        if st.min_bet >= player.betting + player.balance then player.balance
+        else st.min_bet - player.betting
       in
+      let players = player |> Holdem.bet_amount amt |> update_players st in
       if betting_round_over st player then
         let len = List.length st.board in
         if len = 5 then find_winners
@@ -245,7 +245,7 @@ let call st =
             {
               deck = state.deck;
               players;
-              pot = st.pot + st.min_bet - player.betting;
+              pot = st.pot + amt;
               buy_in = st.buy_in;
               board = state.board;
               active = st.active;
@@ -259,7 +259,7 @@ let call st =
           {
             deck = st.deck;
             players;
-            pot = st.pot + st.min_bet - player.betting;
+            pot = st.pot + amt;
             buy_in = st.buy_in;
             board = st.board;
             active = st.active;
@@ -361,8 +361,12 @@ let fold st =
 let raise st i =
   if not st.active then Illegal "Error: The cards have not been dealt yet!\n"
   else if not st.confirmed then Illegal "Error: Please confirm your turn!\n"
-  else if i < st.min_bet || i < st.buy_in / 100 then
-    Illegal "Error: You are raising by an amount that is too small!\n"
+  else if i < st.min_bet + (st.buy_in / 100) then
+    Illegal
+      ("Error: You are raising by an amount that is too small! Minimum amount \
+        to bet is "
+      ^ string_of_int (st.min_bet + (st.buy_in / 100))
+      ^ "\n")
   else
     let p = current_player st in
     let effective_bet = i + st.min_bet - p.betting in
