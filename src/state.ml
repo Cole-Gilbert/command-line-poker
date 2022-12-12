@@ -10,6 +10,7 @@ type t = {
   position : int;
   min_bet : int;
   confirmed : bool;
+  round_finisher : int;
 }
 
 type result =
@@ -27,6 +28,7 @@ let init buy_in =
     position = 0;
     min_bet = buy_in / 100;
     confirmed = false;
+    round_finisher = 0;
   }
 
 let comfirm st =
@@ -44,6 +46,7 @@ let comfirm st =
         position = st.position;
         min_bet = st.min_bet;
         confirmed = true;
+        round_finisher = st.round_finisher;
       }
 
 let equals p1 p2 = p1.name = p2.name
@@ -59,6 +62,28 @@ let update_pos st =
   in
   !pos
 
+let reset_finisher st =
+  let len = List.length st.players in
+  let pos = ref ((len - 3) mod len) in
+  let () =
+    while not (List.nth st.players !pos).active do
+      let new_pos = (!pos - 1) mod len in
+      pos := new_pos
+    done
+  in
+  {
+    deck = st.deck;
+    players = st.players;
+    pot = st.pot;
+    buy_in = st.buy_in;
+    board = st.board;
+    active = st.active;
+    position = st.position;
+    min_bet = st.min_bet;
+    confirmed = st.confirmed;
+    round_finisher = !pos;
+  }
+
 let current_player st =
   let len = List.length st.players in
   let pos = st.position mod len in
@@ -73,13 +98,7 @@ let last_active_player st =
   last_active_player_aux (List.rev st.players)
 
 let betting_round_over st player =
-  let rec all_active_players_equal ps =
-    match ps with
-    | [] | [ _ ] -> true
-    | p1 :: p2 :: t ->
-        if p1 <> p2 then false else all_active_players_equal (p2 :: t)
-  in
-  last_active_player st |> equals player && all_active_players_equal st.players
+  equals (List.nth st.players st.round_finisher) player
 
 let small_blind_player st =
   let len = List.length st.players in
@@ -124,6 +143,7 @@ let deal_to_player p st =
     position = st.position;
     min_bet = st.min_bet;
     confirmed = st.confirmed;
+    round_finisher = st.round_finisher;
   }
 
 let find_winners = Illegal "unimplemented"
@@ -132,23 +152,25 @@ let deal st =
   if st.active then Illegal "Error: The cards have already been dealt!\n"
   else if List.length st.players < 2 then
     Illegal "Error: There must be at least 2 players to start playing!\n"
-  else Legal (List.fold_left (fun st p -> deal_to_player p st) st st.players)
+  else
+    let state =
+      List.fold_left (fun st p -> deal_to_player p st) st st.players
+    in
+    Legal
+      {
+        deck = state.deck;
+        players = state.players;
+        pot = state.pot;
+        buy_in = state.buy_in;
+        board = state.board;
+        active = state.active;
+        position = state.position;
+        min_bet = state.min_bet;
+        confirmed = state.confirmed;
+        round_finisher = List.length state.players - 1;
+      }
 
-let deal_to_board st =
-  let board = Holdem.top_card st.deck :: st.board in
-  {
-    deck = Holdem.draw_from_deck st.deck;
-    players = st.players;
-    pot = st.pot;
-    buy_in = st.buy_in;
-    board;
-    active = st.active;
-    position = st.position;
-    min_bet = st.min_bet;
-    confirmed = st.confirmed;
-  }
-
-let update_start_pos st =
+let reset_start_pos st =
   let st_temp =
     {
       deck = st.deck;
@@ -160,6 +182,7 @@ let update_start_pos st =
       position = List.length st.players - 3;
       min_bet = st.min_bet;
       confirmed = st.confirmed;
+      round_finisher = st.round_finisher;
     }
   in
   let position = update_pos st_temp in
@@ -173,10 +196,26 @@ let update_start_pos st =
     position;
     min_bet = st.min_bet;
     confirmed = st.confirmed;
+    round_finisher = st.round_finisher;
   }
 
-let deal_flop st =
-  st |> deal_to_board |> deal_to_board |> deal_to_board |> update_start_pos
+let deal_to_board st =
+  let board = Holdem.top_card st.deck :: st.board in
+  {
+    deck = Holdem.draw_from_deck st.deck;
+    players = st.players;
+    pot = st.pot;
+    buy_in = st.buy_in;
+    board;
+    active = st.active;
+    position = st.position;
+    min_bet = st.min_bet;
+    confirmed = st.confirmed;
+    round_finisher = st.round_finisher;
+  }
+  |> reset_finisher |> reset_start_pos
+
+let deal_flop st = st |> deal_to_board |> deal_to_board |> deal_to_board
 
 let rec active_player_count (players : player list) =
   match players with
@@ -213,6 +252,7 @@ let call st =
               position = update_pos st;
               min_bet = st.min_bet;
               confirmed = false;
+              round_finisher = state.round_finisher;
             }
       else
         Legal
@@ -226,6 +266,7 @@ let call st =
             position = update_pos st;
             min_bet = st.min_bet;
             confirmed = false;
+            round_finisher = st.round_finisher;
           }
 
 let check st =
@@ -251,6 +292,7 @@ let check st =
             position = update_pos st;
             min_bet = st.min_bet;
             confirmed = false;
+            round_finisher = state.round_finisher;
           }
     else
       Legal
@@ -264,6 +306,7 @@ let check st =
           position = update_pos st;
           min_bet = st.min_bet;
           confirmed = false;
+          round_finisher = st.round_finisher;
         }
 
 let fold st =
@@ -298,6 +341,7 @@ let fold st =
             position = update_pos st;
             min_bet = st.min_bet;
             confirmed = false;
+            round_finisher = state.round_finisher;
           }
     else
       Legal
@@ -311,6 +355,7 @@ let fold st =
           position = update_pos st;
           min_bet = st.min_bet;
           confirmed = false;
+          round_finisher = st.round_finisher;
         }
 
 let raise st i =
@@ -326,6 +371,14 @@ let raise st i =
     else
       let player = bet_amount effective_bet p in
       let players = update_players st player in
+      let len = List.length st.players in
+      let finsher_pos = ref ((st.position - 1) mod len) in
+      let () =
+        while not (List.nth st.players !finsher_pos).active do
+          let new_pos = (!finsher_pos - 1) mod len in
+          finsher_pos := new_pos
+        done
+      in
       Legal
         {
           deck = st.deck;
@@ -337,6 +390,7 @@ let raise st i =
           position = update_pos st;
           min_bet = st.min_bet + i;
           confirmed = false;
+          round_finisher = !finsher_pos;
         }
 
 let add name st =
@@ -356,6 +410,7 @@ let add name st =
         position = st.position;
         min_bet = st.min_bet;
         confirmed = st.confirmed;
+        round_finisher = st.round_finisher;
       }
 
 let remove name st =
@@ -372,6 +427,7 @@ let remove name st =
         position = st.position;
         min_bet = st.min_bet;
         confirmed = st.confirmed;
+        round_finisher = st.round_finisher;
       }
   else Illegal "Error: Name does not exist in list of players!\n"
 
