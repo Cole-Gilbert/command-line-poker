@@ -7,7 +7,7 @@ type kickers = int list
 type hand =
   | RoyalFlush of int
   | StraightFlush of int
-  | FourOfAKind of int
+  | FourOfAKind of (int * kickers)
   | FullHouse of (int * int)
   | Flush of kickers
   | Straight of int
@@ -187,7 +187,11 @@ let find_full_house (rm_list : (int * int) list) : hand option =
 let find_four_of_a_kind (rm_list : (int * int) list) : hand option =
   let four_oak_rank = find_rank_of_mult 4 rm_list in
   match four_oak_rank with
-  | Some rank -> Some (FourOfAKind rank)
+  | Some rank -> (
+      let kicker = find_rank_of_mult 1 rm_list in
+      match kicker with
+      | Some kicker_rank -> Some (FourOfAKind (rank, [ kicker_rank ]))
+      | None -> failwith "Impossible state: fouroak kicker")
   | None -> None
 
 (** [rank_5 cards] is the hand representation of a five card poker hand *)
@@ -231,7 +235,7 @@ let hand_value (h : hand) : int list =
   match h with
   | RoyalFlush rank -> [ 9; rank ]
   | StraightFlush rank -> [ 8; rank ]
-  | FourOfAKind rank -> [ 7; rank ]
+  | FourOfAKind (rank, kickers) -> 7 :: rank :: kickers
   | FullHouse (rank1, rank2) -> [ 6; rank1; rank2 ]
   | Flush kickers -> 5 :: kickers
   | Straight rank -> [ 4; rank ]
