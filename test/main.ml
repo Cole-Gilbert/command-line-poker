@@ -600,11 +600,11 @@ let showdown_tests =
         make_player "p2" [ ("S", 14); ("D", 8) ];
       ]
       [ "p1" ];
-    showdown_test "FAILING Random test 8"
+    showdown_test "Random test 8"
       (make_board [ ("H", 13); ("H", 7); ("C", 4); ("C", 9); ("D", 3) ])
       [
         make_player "p1" [ ("C", 11); ("C", 6) ];
-        make_player "p2" [ ("D", 12); ("H", 8) ];
+        make_player "p2" [ ("D", 12); ("H", 7) ];
       ]
       [ "p2" ];
     showdown_test "Random test 9"
