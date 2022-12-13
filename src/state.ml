@@ -58,7 +58,10 @@ let update_pos st =
   let len = List.length st.players in
   let pos = ref ((1 + st.position) mod len) in
   let () =
-    while not (List.nth st.players !pos).active do
+    while
+      (not (List.nth st.players !pos).active)
+      || (List.nth st.players !pos).balance = 0
+    do
       let new_pos = (!pos + 1) mod len in
       pos := new_pos
     done
