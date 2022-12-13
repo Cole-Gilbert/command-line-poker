@@ -333,7 +333,7 @@ let update_last_min_bet st =
   }
 
 let deal_to_board st =
-  let board = Holdem.top_card st.deck :: st.board in
+  let board = st.board @ [ Holdem.top_card st.deck ] in
   {
     deck = Holdem.draw_from_deck st.deck;
     players = st.players;
