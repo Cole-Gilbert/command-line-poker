@@ -202,11 +202,31 @@ let cash_out st player num_winners =
       hand = player.hand;
     }
   in
+  let pos = ref (List.length st.players - 1) in
+  let players = ref [] in
+  let () =
+    while !pos >= 0 do
+      let player = nth_player st.players !pos in
+      let p =
+        if equals player cashed_out_player then cashed_out_player
+        else
+          {
+            name = player.name;
+            balance = player.balance;
+            betting = max 0 (player.betting - cashed_out_player.betting);
+            active = player.active;
+            hand = player.hand;
+          }
+      in
+      players := p :: !players;
+      pos := !pos - 1
+    done
+  in
   Printf.printf "%s won %i with %s \n" player.name amt
     (cards_to_string player.hand);
   {
     deck = st.deck;
-    players = update_players st cashed_out_player;
+    players = !players;
     pot = st.pot - amt;
     buy_in = st.buy_in;
     board = st.board;
