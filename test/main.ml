@@ -53,7 +53,7 @@ let shuffle_deck_test (name : string) shuffled_deck fresh_deck expected_result :
 let holdem_tests =
   [
     shuffle_deck_test "Ensure decks are being randomized"
-      (Holdem.shuffled_deck ()) (Holdem.shuffled_deck ()) true;
+      (Holdem.shuffled_deck ()) (Holdem.shuffled_deck ()) false;
   ]
 
 (******************************************************************
@@ -89,7 +89,7 @@ Board: (Min Bet: 0)
  │░░░░░░░░░│  │░░░░░░░░░│  │░░░░░░░░░│  │░░░░░░░░░│  │░░░░░░░░░│ 
  └─────────┘  └─────────┘  └─────────┘  └─────────┘  └─────────┘ 
 
-You can add/remove players or deal cards|}
+You can add/remove players or deal cards (enter "help" for exact commands)|}
 
 let state_tests =
   let init_state = init 50 in
