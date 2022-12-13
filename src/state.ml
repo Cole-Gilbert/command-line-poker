@@ -57,13 +57,20 @@ let comfirm st =
 
 let equals p1 p2 = p1.name = p2.name
 
+(** [nth_player players n] safely gets the [n]th player and wraps around if
+    needed *)
+let nth_player (players : Holdem.player list) (n : int) =
+  let len = List.length players in
+  let pos = if n >= len then n mod len else if n < 0 then n + len else n in
+  List.nth players pos
+
 let update_pos st =
   let len = List.length st.players in
   let pos = ref ((1 + st.position) mod len) in
   let () =
     while
-      (not (List.nth st.players !pos).active)
-      || (List.nth st.players !pos).balance = 0
+      (not (nth_player st.players !pos).active)
+      || (nth_player st.players !pos).balance = 0
     do
       let new_pos = (!pos + 1) mod len in
       pos := new_pos
@@ -74,7 +81,7 @@ let update_pos st =
 let current_player st =
   let len = List.length st.players in
   let pos = st.position mod len in
-  List.nth st.players pos
+  nth_player st.players pos
 
 let last_active_player st =
   let rec last_active_player_aux (players : Holdem.player list) : player =
@@ -85,17 +92,18 @@ let last_active_player st =
   last_active_player_aux (List.rev st.players)
 
 let betting_round_over st player =
-  equals (List.nth st.players st.round_finisher) player
+  equals (nth_player st.players st.round_finisher) player
 
 let small_blind_player st =
   let len = List.length st.players in
+
   let pos = (len - 2 + st.position) mod len in
-  List.nth st.players pos
+  nth_player st.players pos
 
 let big_blind_player st =
   let len = List.length st.players in
   let pos = (len - 1 + st.position) mod len in
-  List.nth st.players pos
+  nth_player st.players pos
 
 let update_players st player =
   List.map (fun p -> if equals p player then player else p) st.players
@@ -142,7 +150,7 @@ let amount_to_take st player num_winners =
   let pos = ref 0 in
   let () =
     while !pos < List.length st.players do
-      let p = List.nth st.players !pos in
+      let p = nth_player st.players !pos in
       amt := !amt + min p.betting player.betting;
       pos := !pos + 1
     done
@@ -154,7 +162,7 @@ let reset_state st =
   let players = [] in
   let () =
     while !pos >= 0 do
-      let player = List.nth st.players !pos in
+      let player = nth_player st.players !pos in
       let p =
         {
           name = player.name;
@@ -253,7 +261,7 @@ let reset_finisher st =
   let len = List.length st.players in
   let pos = ref ((len - 3) mod len) in
   let () =
-    while not (List.nth st.players !pos).active do
+    while not (nth_player st.players !pos).active do
       let new_pos = (!pos - 1) mod len in
       pos := new_pos
     done
@@ -515,7 +523,7 @@ let raise st i =
       let len = List.length st.players in
       let finsher_pos = ref ((st.position - 1) mod len) in
       let () =
-        while not (List.nth st.players !finsher_pos).active do
+        while not (nth_player st.players !finsher_pos).active do
           let new_pos = (!finsher_pos - 1) mod len in
           finsher_pos := new_pos
         done
@@ -647,7 +655,9 @@ let state_to_string st =
       else
         Holdem.player_to_string player
         ^ ", are you ready? Press enter to start your turn."
-    else "You can add/remove players or deal cards"
+    else
+      "You can add/remove players or deal cards (enter \"help\" for exact \
+       commands)"
   else
     Holdem.cards_to_string st.board
     ^ "\n\n"
@@ -658,4 +668,6 @@ let state_to_string st =
       else
         Holdem.player_to_string player
         ^ ", are you ready? Press enter to start your turn."
-    else "You can add/remove players or deal cards"
+    else
+      "You can add/remove players or deal cards (enter \"help\" for exact \
+       commands)"

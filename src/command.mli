@@ -16,6 +16,7 @@ type action =
 type command =
   | Action of action
   | Quit  (** The type representing a whole player command *)
+  | Help
 
 exception Malformed
 (** Raised when attempting to parse an invalid command *)
