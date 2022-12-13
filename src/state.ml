@@ -292,7 +292,9 @@ let deal st =
         min_bet = state.min_bet;
         last_min_bet = 0;
         confirmed = state.confirmed;
-        round_finisher = List.length state.players - 1;
+        round_finisher =
+          (List.length state.players - 1 + st.rounds_played)
+          mod List.length state.players;
         rounds_played = st.rounds_played;
       }
 
