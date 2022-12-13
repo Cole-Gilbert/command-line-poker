@@ -26,7 +26,7 @@ let shuffle_deck_test (name : string) shuffled_deck fresh_deck expected_result :
     test =
   name >:: fun _ ->
   assert_equal expected_result
-    (cards_to_string shuffled_deck <> cards_to_string fresh_deck)
+    (cards_to_string shuffled_deck = cards_to_string fresh_deck)
 
 let holdem_tests =
   [
