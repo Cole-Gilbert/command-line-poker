@@ -219,21 +219,58 @@ let cash_out st player num_winners =
     rounds_played = st.rounds_played;
   }
 
+let give_money_back st =
+  let pos = ref (List.length st.players - 1) in
+  let players = ref [] in
+  let () =
+    while !pos >= 0 do
+      let player = nth_player st.players !pos in
+      let p =
+        {
+          name = player.name;
+          balance = player.balance + player.betting;
+          betting = 0;
+          active = true;
+          hand = [];
+        }
+      in
+      players := p :: !players;
+      pos := !pos - 1
+    done
+  in
+  Legal
+    {
+      deck = shuffled_deck ();
+      players = !players;
+      pot = 0;
+      buy_in = st.buy_in;
+      board = [];
+      active = false;
+      position = (st.rounds_played + 1) mod List.length !players;
+      min_bet = st.buy_in / 100;
+      last_min_bet = 0;
+      confirmed = false;
+      round_finisher = 0;
+      rounds_played = st.rounds_played + 1;
+    }
+
 let rec find_winners st =
   let state = ref st in
   let active_players = List.filter active_player_filter st.players in
   let winners = Showdown.showdown st.board active_players in
   let len = List.length winners in
-  let sorted_winners =
-    ref (List.sort (fun a b -> Stdlib.compare a.betting b.betting) winners)
-  in
-  let () =
-    while List.length !sorted_winners >= 1 do
-      state := cash_out !state (List.hd !sorted_winners) len;
-      sorted_winners := List.tl !sorted_winners
-    done
-  in
-  if !state.pot > 0 then find_winners !state else Legal (reset_state !state)
+  if len = 0 then give_money_back st
+  else
+    let sorted_winners =
+      ref (List.sort (fun a b -> Stdlib.compare a.betting b.betting) winners)
+    in
+    let () =
+      while List.length !sorted_winners >= 1 do
+        state := cash_out !state (List.hd !sorted_winners) len;
+        sorted_winners := List.tl !sorted_winners
+      done
+    in
+    if !state.pot > 0 then find_winners !state else Legal (reset_state !state)
 
 let deal st =
   if st.active then Illegal "Error: The cards have already been dealt!\n"
