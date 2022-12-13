@@ -12,6 +12,7 @@ type t = {
   last_min_bet : int;
   confirmed : bool;
   round_finisher : int;
+  rounds_played : int;
 }
 
 type result =
@@ -31,6 +32,7 @@ let init buy_in =
     last_min_bet = 0;
     confirmed = false;
     round_finisher = 0;
+    rounds_played = 0;
   }
 
 let comfirm st =
@@ -50,6 +52,7 @@ let comfirm st =
         last_min_bet = st.last_min_bet;
         confirmed = true;
         round_finisher = st.round_finisher;
+        rounds_played = st.rounds_played;
       }
 
 let equals p1 p2 = p1.name = p2.name
@@ -86,12 +89,12 @@ let betting_round_over st player =
 
 let small_blind_player st =
   let len = List.length st.players in
-  let pos = len - 2 in
+  let pos = (len - 2 + st.position) mod len in
   List.nth st.players pos
 
 let big_blind_player st =
   let len = List.length st.players in
-  let pos = len - 1 in
+  let pos = (len - 1 + st.position) mod len in
   List.nth st.players pos
 
 let update_players st player =
@@ -129,6 +132,7 @@ let deal_to_player p st =
     last_min_bet = st.last_min_bet;
     confirmed = st.confirmed;
     round_finisher = st.round_finisher;
+    rounds_played = st.rounds_played;
   }
 
 let active_player_filter (player : player) : bool = player.active
@@ -171,11 +175,12 @@ let reset_state st =
     buy_in = st.buy_in;
     board = [];
     active = false;
-    position = 0;
+    position = (st.rounds_played + 1) mod List.length players;
     min_bet = st.buy_in / 100;
     last_min_bet = 0;
     confirmed = false;
     round_finisher = 0;
+    rounds_played = st.rounds_played + 1;
   }
 
 let cash_out st player num_winners =
@@ -201,6 +206,7 @@ let cash_out st player num_winners =
     last_min_bet = st.last_min_bet;
     confirmed = st.confirmed;
     round_finisher = st.round_finisher;
+    rounds_played = st.rounds_played;
   }
 
 let rec find_winners st =
@@ -240,6 +246,7 @@ let deal st =
         last_min_bet = 0;
         confirmed = state.confirmed;
         round_finisher = List.length state.players - 1;
+        rounds_played = st.rounds_played;
       }
 
 let reset_finisher st =
@@ -263,6 +270,7 @@ let reset_finisher st =
     last_min_bet = st.last_min_bet;
     confirmed = st.confirmed;
     round_finisher = !pos;
+    rounds_played = st.rounds_played;
   }
 
 let reset_start_pos st =
@@ -279,6 +287,7 @@ let reset_start_pos st =
       last_min_bet = st.last_min_bet;
       confirmed = st.confirmed;
       round_finisher = st.round_finisher;
+      rounds_played = st.rounds_played;
     }
   in
   let position = update_pos st_temp in
@@ -294,6 +303,7 @@ let reset_start_pos st =
     last_min_bet = st.last_min_bet;
     confirmed = st.confirmed;
     round_finisher = st.round_finisher;
+    rounds_played = st.rounds_played;
   }
 
 let update_last_min_bet st =
@@ -309,6 +319,7 @@ let update_last_min_bet st =
     last_min_bet = st.min_bet;
     confirmed = st.confirmed;
     round_finisher = st.round_finisher;
+    rounds_played = st.rounds_played;
   }
 
 let deal_to_board st =
@@ -325,6 +336,7 @@ let deal_to_board st =
     last_min_bet = st.last_min_bet;
     confirmed = st.confirmed;
     round_finisher = st.round_finisher;
+    rounds_played = st.rounds_played;
   }
   |> reset_finisher |> reset_start_pos |> update_last_min_bet
 
@@ -367,6 +379,7 @@ let call st =
               last_min_bet = st.last_min_bet;
               confirmed = false;
               round_finisher = state.round_finisher;
+              rounds_played = st.rounds_played;
             }
       else
         Legal
@@ -382,6 +395,7 @@ let call st =
             last_min_bet = st.last_min_bet;
             confirmed = false;
             round_finisher = st.round_finisher;
+            rounds_played = st.rounds_played;
           }
 
 let check st =
@@ -409,6 +423,7 @@ let check st =
             last_min_bet = st.last_min_bet;
             confirmed = false;
             round_finisher = state.round_finisher;
+            rounds_played = st.rounds_played;
           }
     else
       Legal
@@ -424,6 +439,7 @@ let check st =
           last_min_bet = st.last_min_bet;
           confirmed = false;
           round_finisher = st.round_finisher;
+          rounds_played = st.rounds_played;
         }
 
 let fold st =
@@ -460,6 +476,7 @@ let fold st =
             last_min_bet = st.last_min_bet;
             confirmed = false;
             round_finisher = state.round_finisher;
+            rounds_played = st.rounds_played;
           }
     else
       Legal
@@ -475,6 +492,7 @@ let fold st =
           last_min_bet = st.last_min_bet;
           confirmed = false;
           round_finisher = st.round_finisher;
+          rounds_played = st.rounds_played;
         }
 
 let raise st i =
@@ -515,6 +533,7 @@ let raise st i =
           last_min_bet = st.last_min_bet;
           confirmed = false;
           round_finisher = !finsher_pos;
+          rounds_played = st.rounds_played;
         }
 
 let add name st =
@@ -536,6 +555,7 @@ let add name st =
         last_min_bet = st.last_min_bet;
         confirmed = st.confirmed;
         round_finisher = st.round_finisher;
+        rounds_played = st.rounds_played;
       }
 
 let remove name st =
@@ -554,6 +574,7 @@ let remove name st =
         last_min_bet = st.last_min_bet;
         confirmed = st.confirmed;
         round_finisher = st.round_finisher;
+        rounds_played = st.rounds_played;
       }
   else Illegal "Error: Name does not exist in list of players!\n"
 
