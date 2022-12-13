@@ -158,8 +158,8 @@ let amount_to_take st player num_winners =
   !amt / num_winners
 
 let reset_state st =
-  let pos = ref (List.length st.players) in
-  let players = [] in
+  let pos = ref (List.length st.players - 1) in
+  let players = ref [] in
   let () =
     while !pos >= 0 do
       let player = nth_player st.players !pos in
@@ -172,18 +172,18 @@ let reset_state st =
           hand = [];
         }
       in
-      let _ = p :: players in
+      players := p :: !players;
       pos := !pos - 1
     done
   in
   {
     deck = shuffled_deck ();
-    players;
+    players = !players;
     pot = 0;
     buy_in = st.buy_in;
     board = [];
     active = false;
-    position = (st.rounds_played + 1) mod List.length players;
+    position = (st.rounds_played + 1) mod List.length !players;
     min_bet = st.buy_in / 100;
     last_min_bet = 0;
     confirmed = false;
@@ -202,6 +202,8 @@ let cash_out st player num_winners =
       hand = player.hand;
     }
   in
+  Printf.printf "%s won %i with %s \n" player.name amt
+    (cards_to_string player.hand);
   {
     deck = st.deck;
     players = update_players st cashed_out_player;
@@ -231,7 +233,7 @@ let rec find_winners st =
       sorted_winners := List.tl !sorted_winners
     done
   in
-  if st.pot > 0 then find_winners !state else Legal (reset_state !state)
+  if !state.pot > 0 then find_winners !state else Legal (reset_state !state)
 
 let deal st =
   if st.active then Illegal "Error: The cards have already been dealt!\n"
