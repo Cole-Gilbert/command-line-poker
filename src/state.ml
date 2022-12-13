@@ -28,7 +28,7 @@ let init buy_in =
     active = false;
     position = 0;
     min_bet = buy_in / 100;
-    last_min_bet = buy_in / 100;
+    last_min_bet = 0;
     confirmed = false;
     round_finisher = 0;
   }
@@ -131,7 +131,93 @@ let deal_to_player p st =
     round_finisher = st.round_finisher;
   }
 
-let find_winners = Illegal "unimplemented"
+let active_player_filter (player : player) : bool = player.active
+
+let amount_to_take st player num_winners =
+  let amt = ref 0 in
+  let pos = ref 0 in
+  let () =
+    while !pos < List.length st.players do
+      let p = List.nth st.players !pos in
+      amt := !amt + min p.betting player.betting;
+      pos := !pos + 1
+    done
+  in
+  !amt / num_winners
+
+let reset_state st =
+  let pos = ref (List.length st.players) in
+  let players = [] in
+  let () =
+    while !pos >= 0 do
+      let player = List.nth st.players !pos in
+      let p =
+        {
+          name = player.name;
+          balance = player.balance;
+          betting = 0;
+          active = true;
+          hand = [];
+        }
+      in
+      let _ = p :: players in
+      pos := !pos - 1
+    done
+  in
+  {
+    deck = shuffled_deck ();
+    players;
+    pot = 0;
+    buy_in = st.buy_in;
+    board = [];
+    active = false;
+    position = 0;
+    min_bet = st.buy_in / 100;
+    last_min_bet = 0;
+    confirmed = false;
+    round_finisher = 0;
+  }
+
+let cash_out st player num_winners =
+  let amt = amount_to_take st player num_winners in
+  let cashed_out_player =
+    {
+      name = player.name;
+      balance = player.balance + amt;
+      betting = player.betting;
+      active = false;
+      hand = player.hand;
+    }
+  in
+  {
+    deck = st.deck;
+    players = update_players st cashed_out_player;
+    pot = st.pot - amt;
+    buy_in = st.buy_in;
+    board = st.board;
+    active = st.active;
+    position = st.position;
+    min_bet = st.min_bet;
+    last_min_bet = st.last_min_bet;
+    confirmed = st.confirmed;
+    round_finisher = st.round_finisher;
+  }
+
+let rec find_winners st =
+  let state = ref st in
+  let active_players = List.filter active_player_filter st.players in
+  let winners = Showdown.showdown st.board active_players in
+  let len = List.length winners in
+  let sorted_winners =
+    ref (List.sort (fun a b -> Stdlib.compare a.betting b.betting) winners)
+  in
+  let () =
+    while List.length !sorted_winners >= 1 do
+      state := cash_out !state (List.hd !sorted_winners) len;
+      sorted_winners := List.tl !sorted_winners
+    done
+  in
+  if st.pot > 0 then find_winners !state else Legal (reset_state !state)
 
 let deal st =
   if st.active then Illegal "Error: The cards have already been dealt!\n"
@@ -265,7 +351,7 @@ let call st =
       let players = player |> Holdem.bet_amount amt |> update_players st in
       if betting_round_over st player then
         let len = List.length st.board in
-        if len = 5 then find_winners
+        if len = 5 then find_winners st
         else
           let state = if len = 0 then deal_flop st else deal_to_board st in
           Legal
@@ -307,7 +393,7 @@ let check st =
       Illegal "Error: You cannot check here!\n"
     else if betting_round_over st player then
       let len = List.length st.board in
-      if len = 5 then find_winners
+      if len = 5 then find_winners st
       else
         let state = if len = 0 then deal_flop st else deal_to_board st in
         Legal
@@ -355,10 +441,10 @@ let fold st =
       }
     in
     let players = update_players st player in
-    if active_player_count players = 1 then find_winners
+    if active_player_count players = 1 then find_winners st
     else if betting_round_over st player then
       let len = List.length st.board in
-      if len = 5 then find_winners
+      if len = 5 then find_winners st
       else
         let state = if len = 0 then deal_flop st else deal_to_board st in
         Legal
