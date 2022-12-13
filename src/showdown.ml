@@ -112,7 +112,8 @@ let check_highcard (cards : Holdem.card list) : hand =
       HighCard
         ( h.rank,
           List.fold_left
-            (fun kickers (elt : Holdem.card) -> elt.rank :: kickers)
+            (fun (kickers : int list) (elt : Holdem.card) ->
+              elt.rank :: kickers)
             [] t )
   | [] -> failwith "Violates precondition (Hand cannot be empty)"
 
@@ -124,13 +125,15 @@ let check_seq (cards : Holdem.card list) : hand option =
     if no_ace_hand |> is_straight then
       if List.length no_ace_hand = 4 then
         if (List.hd no_ace_hand).rank = 13 then Some (RoyalFlush 14)
-        else Some (StraightFlush 5)
+        else if (List.hd no_ace_hand).rank = 5 then Some (StraightFlush 5)
+        else None
       else Some (StraightFlush (List.hd cards).rank)
     else Some (Flush (to_rank_mult cards |> to_kickers))
   else if no_ace_hand |> is_straight then
     if List.length no_ace_hand = 4 then
       if (List.hd no_ace_hand).rank = 13 then Some (Straight 14)
-      else Some (Straight 5)
+      else if (List.hd no_ace_hand).rank = 5 then Some (Straight 5)
+      else None
     else Some (Straight (List.hd cards).rank)
   else None
 
